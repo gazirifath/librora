@@ -81,7 +81,7 @@ const NewsletterCTA = () => {
         </div>
 
         {/* Subscribe form */}
-        <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <form onSubmit={handleSubmit} className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-2.5 sm:gap-3 max-w-md mx-auto">
           <input
             type="email"
             value={email}
