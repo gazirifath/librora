@@ -1,34 +1,100 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, TrendingUp, BookOpen, ArrowRight, Leaf, Mail, Download, Flame, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { books, categories } from "@/data/books";
-import BookCard from "@/components/BookCard";
+import { supabase } from "@/integrations/supabase/client";
+import BookCard, { BookCardPost } from "@/components/BookCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
 
+interface DbPost {
+  id: string;
+  slug: string;
+  title: string;
+  author: string;
+  cover_url: string | null;
+  summary: string | null;
+  download_count: number | null;
+  reading_time: string | null;
+  created_at: string;
+  categories: { name: string } | null;
+}
+
+interface DbCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const Index = () => {
   const [search, setSearch] = useState("");
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [posts, setPosts] = useState<DbPost[]>([]);
+  const [categories, setCategories] = useState<DbCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [postsRes, catsRes] = await Promise.all([
+        supabase
+          .from("posts")
+          .select("id, slug, title, author, cover_url, summary, download_count, reading_time, created_at, categories(name)")
+          .eq("status", "published")
+          .order("created_at", { ascending: false }),
+        supabase.from("categories").select("*").order("name"),
+      ]);
+      setPosts((postsRes.data as any) || []);
+      setCategories(catsRes.data || []);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const toBookCard = (p: DbPost): BookCardPost => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    author: p.author,
+    cover_url: p.cover_url,
+    category_name: p.categories?.name,
+    summary: p.summary,
+    download_count: p.download_count,
+    reading_time: p.reading_time,
+  });
 
   const filteredBooks = useMemo(() => {
     if (!search.trim()) return [];
-    return books.filter(
+    return posts.filter(
       b =>
         b.title.toLowerCase().includes(search.toLowerCase()) ||
         b.author.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, posts]);
 
   const popularBooks = useMemo(
-    () => [...books].sort((a, b) => b.downloadCount - a.downloadCount).slice(0, 4),
-    []
+    () => [...posts].sort((a, b) => (b.download_count || 0) - (a.download_count || 0)).slice(0, 4),
+    [posts]
   );
 
   const recentBooks = useMemo(
-    () => [...books].sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()).slice(0, 4),
-    []
+    () => [...posts].slice(0, 4),
+    [posts]
   );
+
+  const catStats = useMemo(() => {
+    return categories.map(cat => {
+      const catPosts = posts.filter(p => p.categories?.name === cat.name);
+      const totalDl = catPosts.reduce((s, p) => s + (p.download_count || 0), 0);
+      const hasRecent = catPosts.some(p => {
+        const d = new Date(p.created_at);
+        const ago = new Date(); ago.setDate(ago.getDate() - 30);
+        return d >= ago;
+      });
+      return { cat, count: catPosts.length, totalDl, hasRecent };
+    });
+  }, [categories, posts]);
+
+  const maxDl = Math.max(...catStats.map(c => c.totalDl), 1);
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,17 +138,17 @@ const Index = () => {
             />
             {filteredBooks.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-background shadow-book overflow-hidden z-10">
-                {filteredBooks.map(book => (
+                {filteredBooks.map(post => (
                   <Link
-                    key={book.id}
-                    to={`/${book.slug}`}
+                    key={post.id}
+                    to={`/${post.slug}`}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors"
                     onClick={() => setSearch("")}
                   >
                     <BookOpen className="h-4 w-4 text-primary" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">{book.title}</p>
-                      <p className="text-xs text-muted-foreground">{book.author}</p>
+                      <p className="text-sm font-medium text-foreground">{post.title}</p>
+                      <p className="text-xs text-muted-foreground">{post.author}</p>
                     </div>
                   </Link>
                 ))}
@@ -98,38 +164,18 @@ const Index = () => {
           <div className="container">
             <h2 className="font-heading text-2xl font-bold text-foreground mb-8">Browse Categories</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {categories.map(cat => {
-                const catBooks = books.filter(b => b.category === cat);
-                const count = catBooks.length;
-                const totalDownloads = catBooks.reduce((sum, b) => sum + b.downloadCount, 0);
-                const allTotals = categories.map(c => books.filter(b => b.category === c).reduce((s, b) => s + b.downloadCount, 0));
-                const maxDl = Math.max(...allTotals, 1);
-                const isTopDownload = totalDownloads === maxDl;
-                const avgDl = count > 0 ? Math.round(totalDownloads / count) : 0;
-                const allAvgs = categories.map(c => { const cb = books.filter(b => b.category === c); return cb.length > 0 ? Math.round(cb.reduce((s, b) => s + b.downloadCount, 0) / cb.length) : 0; });
-                const topAvgs = [...allAvgs].sort((a, b) => b - a).slice(0, 3);
-                const isTrending = count > 0 && topAvgs.includes(avgDl) && !isTopDownload;
-                const hasRecent = catBooks.some(b => {
-                  const d = new Date(b.dateAdded);
-                  const ago = new Date(); ago.setDate(ago.getDate() - 30);
-                  return d >= ago;
-                });
-
+              {catStats.map(({ cat, count, totalDl, hasRecent }) => {
+                const isTop = totalDl === maxDl && totalDl > 0;
                 return (
                   <Link
-                    key={cat}
-                    to={`/categories/${cat.toLowerCase().replace(/\s+/g, "-")}`}
+                    key={cat.id}
+                    to={`/categories/${cat.slug}`}
                     className="relative rounded-lg border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book transition-all cursor-pointer"
                   >
                     <div className="flex flex-wrap gap-1 justify-center mb-2">
-                      {isTopDownload && (
+                      {isTop && (
                         <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold">
                           <Download className="h-2.5 w-2.5" /> Top
-                        </span>
-                      )}
-                      {isTrending && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/80 text-accent-foreground px-1.5 py-0.5 text-[9px] font-semibold">
-                          <Flame className="h-2.5 w-2.5" /> Trending
                         </span>
                       )}
                       {hasRecent && (
@@ -138,7 +184,7 @@ const Index = () => {
                         </span>
                       )}
                     </div>
-                    <p className="font-heading font-semibold text-foreground">{cat}</p>
+                    <p className="font-heading font-semibold text-foreground">{cat.name}</p>
                     <p className="text-xs text-muted-foreground mt-1">{count} {count === 1 ? 'book' : 'books'}</p>
                   </Link>
                 );
@@ -148,35 +194,39 @@ const Index = () => {
         </section>
 
         {/* Popular */}
-        <section className="py-16 bg-card">
-          <div className="container">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-2">
+        {popularBooks.length > 0 && (
+          <section className="py-16 bg-card">
+            <div className="container">
+              <div className="flex items-center gap-2 mb-8">
                 <TrendingUp className="h-5 w-5 text-primary" />
                 <h2 className="font-heading text-2xl font-bold text-foreground">Most Popular</h2>
               </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {popularBooks.map(book => (
+                  <BookCard key={book.id} book={toBookCard(book)} />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {popularBooks.map(book => (
-                <BookCard key={book.id} book={book} />
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Recent */}
-        <section className="py-16">
-          <div className="container">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="font-heading text-2xl font-bold text-foreground">Recently Added</h2>
+        {recentBooks.length > 0 && (
+          <section className="py-16">
+            <div className="container">
+              <h2 className="font-heading text-2xl font-bold text-foreground mb-8">Recently Added</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {recentBooks.map(book => (
+                  <BookCard key={book.id} book={toBookCard(book)} />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {recentBooks.map(book => (
-                <BookCard key={book.id} book={book} />
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
+
+        {loading && (
+          <div className="py-16 text-center text-muted-foreground">Loading books...</div>
+        )}
 
         {/* Newsletter */}
         <section className="py-16 gradient-hero">

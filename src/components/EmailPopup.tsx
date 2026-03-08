@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { X, Leaf, Mail } from "lucide-react";
-import { addEmail } from "@/data/books";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface EmailPopupProps {
   bookSlug: string;
   bookTitle: string;
+  bookCategory?: string;
+  postId?: string;
+  downloadUrl?: string | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const EmailPopup = ({ bookSlug, bookTitle, isOpen, onClose }: EmailPopupProps) => {
+const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, isOpen, onClose }: EmailPopupProps) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -25,23 +28,46 @@ const EmailPopup = ({ bookSlug, bookTitle, isOpen, onClose }: EmailPopupProps) =
     }
 
     setLoading(true);
-    // Simulate async
-    await new Promise(r => setTimeout(r, 800));
+    try {
+      // Save email to database
+      await supabase.from("collected_emails").insert({
+        email,
+        post_id: postId || null,
+        post_title: bookTitle,
+        category: bookCategory || "",
+      });
 
-    const added = addEmail(email, bookSlug);
-    if (!added) {
-      toast.info("You've already downloaded this book!");
-    } else {
+      // Log download
+      await supabase.from("download_logs").insert({
+        post_id: postId || null,
+        post_title: bookTitle,
+      });
+
+      // Increment download count
+      if (postId) {
+        const { data: post } = await supabase.from("posts").select("download_count").eq("id", postId).maybeSingle();
+        if (post) {
+          await supabase.from("posts").update({ download_count: (post.download_count || 0) + 1 }).eq("id", postId);
+        }
+      }
+
       toast.success("Download link sent to your email!");
-    }
+      setSuccess(true);
 
+      // If there's a download URL, open it
+      if (downloadUrl) {
+        window.open(downloadUrl, "_blank");
+      }
+
+      setTimeout(() => {
+        setEmail("");
+        setSuccess(false);
+        onClose();
+      }, 2000);
+    } catch (err: any) {
+      toast.error("Something went wrong. Please try again.");
+    }
     setLoading(false);
-    setSuccess(true);
-    setTimeout(() => {
-      setEmail("");
-      setSuccess(false);
-      onClose();
-    }, 2000);
   };
 
   return (
