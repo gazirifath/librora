@@ -244,7 +244,7 @@ const BookPage = () => {
           <div className="max-w-3xl">
             <div className="gradient-hero rounded-xl p-8 text-center">
               <h3 className="font-heading text-xl font-bold text-primary-foreground">
-                Get the free PDF download
+                Get the PDF download
               </h3>
               <p className="text-sm text-primary-foreground/75 mt-2">
                 Download and read offline anytime, completely free.
