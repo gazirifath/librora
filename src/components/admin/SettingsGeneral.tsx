@@ -8,6 +8,7 @@ const SettingsGeneral = () => {
   const [tagline, setTagline] = useState("");
   const [siteUrl, setSiteUrl] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
+  const [dailyReportEmail, setDailyReportEmail] = useState("");
 
   useEffect(() => {
     if (settings) {
@@ -15,12 +16,13 @@ const SettingsGeneral = () => {
       setTagline(settings.tagline || "");
       setSiteUrl(settings.site_url || "");
       setAdminEmail(settings.admin_email || "");
+      setDailyReportEmail(settings.daily_report_email || "");
     }
   }, [settings]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings.mutate({ site_title: siteTitle, tagline, site_url: siteUrl, admin_email: adminEmail });
+    updateSettings.mutate({ site_title: siteTitle, tagline, site_url: siteUrl, admin_email: adminEmail, daily_report_email: dailyReportEmail });
   };
 
   if (isLoading) return <div className="text-muted-foreground">Loading...</div>;
@@ -44,6 +46,11 @@ const SettingsGeneral = () => {
         <div>
           <label className="text-sm font-medium text-foreground block mb-1">Admin Email</label>
           <input type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-foreground block mb-1">Daily Report Email</label>
+          <p className="text-xs text-muted-foreground mb-1">Collected emails will be sent daily to this address.</p>
+          <input type="email" value={dailyReportEmail} onChange={e => setDailyReportEmail(e.target.value)} placeholder="report@example.com" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
         </div>
         <button type="submit" disabled={updateSettings.isPending}
           className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
