@@ -72,8 +72,24 @@ const Categories = () => {
                   to={`/categories/${cat.toLowerCase().replace(/\s+/g, "-")}`}
                   className="group relative rounded-xl border border-border bg-card p-6 hover:shadow-book transition-all duration-300"
                 >
-
-
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-1.5 absolute top-3 right-3">
+                    {isTopDownload && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-semibold">
+                        <Download className="h-2.5 w-2.5" /> Most Downloaded
+                      </span>
+                    )}
+                    {isTrending && !isTopDownload && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/80 text-accent-foreground px-2 py-0.5 text-[10px] font-semibold">
+                        <Flame className="h-2.5 w-2.5" /> Trending
+                      </span>
+                    )}
+                    {recentBooks > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-secondary-foreground px-2 py-0.5 text-[10px] font-semibold">
+                        <Clock className="h-2.5 w-2.5" /> New
+                      </span>
+                    )}
+                  </div>
 
                   <span className="text-3xl mb-3 block">
                     {categoryIcons[cat] || "📚"}
@@ -81,32 +97,9 @@ const Categories = () => {
                   <h2 className="font-heading text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
                     {cat}
                   </h2>
-                  <p className="text-sm text-muted-foreground mb-2">
+                  <p className="text-sm text-muted-foreground mb-3">
                     {catBooks.length} {catBooks.length === 1 ? "book" : "books"}
                   </p>
-
-                  {/* Download stats */}
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                      <span className="flex items-center gap-1">
-                        <Download className="h-3 w-3" /> {totalDownloads.toLocaleString()} downloads
-                      </span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-primary/60 transition-all duration-500"
-                        style={{ width: `${downloadPercent}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Performance indicator */}
-                  {catBooks.length > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
-                      <TrendingUp className="h-3 w-3 text-primary" />
-                      <span>Avg {avgDownloads.toLocaleString()} downloads/book</span>
-                    </div>
-                  )}
 
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
                     Browse <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
