@@ -74,6 +74,7 @@ const AdminDashboard = () => {
             <Route path="settings/media" element={<AdminSettingsMedia />} />
             <Route path="settings/permalinks" element={<AdminSettingsPermalinks />} />
             <Route path="settings/privacy" element={<AdminSettingsPrivacy />} />
+            <Route path="settings/social" element={<AdminSettingsSocial />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </div>

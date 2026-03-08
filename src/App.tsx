@@ -35,6 +35,8 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
             <Route path="/dmca" element={<DMCA />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/:slug" element={<BookPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
