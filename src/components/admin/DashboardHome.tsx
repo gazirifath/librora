@@ -22,6 +22,10 @@ const DashboardHome = () => {
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekStr = weekAgo.toISOString().split("T")[0];
   const thisWeekEmails = emails.filter(e => e.date >= weekStr);
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  const monthStr = monthStart.toISOString().split("T")[0];
+  const thisMonthEmails = emails.filter(e => e.date >= monthStr);
 
   const chartData = useMemo(() => {
     const map: Record<string, number> = {};
