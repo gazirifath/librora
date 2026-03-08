@@ -23,6 +23,7 @@ import AdminSettingsDiscussion from "@/components/admin/SettingsDiscussion";
 import AdminSettingsMedia from "@/components/admin/SettingsMedia";
 import AdminSettingsPermalinks from "@/components/admin/SettingsPermalinks";
 import AdminSettingsPrivacy from "@/components/admin/SettingsPrivacy";
+import AdminSettingsSocial from "@/components/admin/SettingsSocial";
 import AdminDailyReports from "@/components/admin/DailyReports";
 import AdminAutomation from "@/components/admin/AutomationSettings";
 import AdminAnalytics from "@/components/admin/Analytics";
@@ -73,6 +74,7 @@ const AdminDashboard = () => {
             <Route path="settings/media" element={<AdminSettingsMedia />} />
             <Route path="settings/permalinks" element={<AdminSettingsPermalinks />} />
             <Route path="settings/privacy" element={<AdminSettingsPrivacy />} />
+            <Route path="settings/social" element={<AdminSettingsSocial />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </div>

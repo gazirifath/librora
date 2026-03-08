@@ -13,6 +13,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
 import DMCA from "./pages/DMCA";
+import AboutUs from "./pages/AboutUs";
+import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
             <Route path="/dmca" element={<DMCA />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/:slug" element={<BookPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

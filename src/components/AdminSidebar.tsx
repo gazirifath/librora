@@ -62,6 +62,7 @@ const menuItems: MenuItem[] = [
       { label: "Media", path: "/admin/settings/media" },
       { label: "Permalinks", path: "/admin/settings/permalinks" },
       { label: "Privacy", path: "/admin/settings/privacy" },
+      { label: "Social Media", path: "/admin/settings/social" },
     ]
   },
 ];
