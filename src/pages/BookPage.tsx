@@ -274,6 +274,8 @@ const BookPage = () => {
             </div>
           </section>
         )}
+
+        <NewsletterCTA />
       </main>
 
       <Footer />
