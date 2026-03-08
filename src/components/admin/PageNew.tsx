@@ -4,6 +4,8 @@ import { useCreatePage, useUpdatePage } from "@/hooks/useAdminData";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import RichTextEditor from "./RichTextEditor";
+import DOMPurify from "dompurify";
+import { Eye, PenLine, X } from "lucide-react";
 
 const PageNew = () => {
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ const PageNew = () => {
   const [content, setContent] = useState("");
   const [status, setStatus] = useState("draft");
   const [loaded, setLoaded] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
 
   if (isEdit && existingPage && !loaded) {
     setTitle(existingPage.title);
@@ -51,6 +54,40 @@ const PageNew = () => {
       createPage.mutate(data, { onSuccess: () => navigate("/admin/pages") });
     }
   };
+
+  if (previewing) {
+    return (
+      <>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-heading text-2xl font-bold text-foreground flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" /> Preview
+          </h1>
+          <button
+            onClick={() => setPreviewing(false)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            <PenLine className="h-4 w-4" /> Back to Editor
+          </button>
+        </div>
+        <div className="rounded-lg border border-border bg-card max-w-3xl overflow-hidden">
+          {/* Simulated page header */}
+          <div className="bg-primary/5 py-8 px-6 text-center border-b border-border">
+            <h1 className="font-heading text-3xl font-bold text-foreground">{title || "Untitled Page"}</h1>
+          </div>
+          {/* Content */}
+          <div className="p-6">
+            <div
+              className="prose prose-sm max-w-none text-foreground/85 prose-headings:font-heading prose-headings:text-foreground prose-h2:text-xl prose-h2:font-semibold prose-h2:mt-6 prose-ul:list-disc prose-ul:pl-6 prose-strong:font-semibold"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+            />
+            {!content && (
+              <p className="text-muted-foreground italic text-center py-8">No content yet.</p>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -78,6 +115,13 @@ const PageNew = () => {
             <option value="draft">Draft</option>
             <option value="published">Published</option>
           </select>
+          <button
+            type="button"
+            onClick={() => setPreviewing(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            <Eye className="h-4 w-4" /> Preview
+          </button>
           <button type="submit" disabled={createPage.isPending || updatePage.isPending}
             className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
             {isEdit ? "Update" : "Publish"}
