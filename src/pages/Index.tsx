@@ -215,11 +215,12 @@ const Index = () => {
           </section>
         )}
 
+        {/* All Books paginated */}
+        {!loading && posts.length > 0 && <AllBooksSection posts={posts} />}
+
         {loading && (
           <div className="py-16 text-center text-muted-foreground">Loading books...</div>
         )}
-
-        
 
         {/* Ad space */}
         <section className="py-8">
