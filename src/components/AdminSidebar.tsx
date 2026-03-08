@@ -55,9 +55,6 @@ const menuItems: MenuItem[] = [
   {
     label: "Settings", icon: Settings, children: [
       { label: "General", path: "/admin/settings/general" },
-      { label: "Writing", path: "/admin/settings/writing" },
-      { label: "Reading", path: "/admin/settings/reading" },
-      { label: "Discussion", path: "/admin/settings/discussion" },
       { label: "Media", path: "/admin/settings/media" },
       { label: "Permalinks", path: "/admin/settings/permalinks" },
       { label: "Privacy", path: "/admin/settings/privacy" },
