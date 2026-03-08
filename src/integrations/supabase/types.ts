@@ -73,6 +73,35 @@ export type Database = {
           },
         ]
       }
+      download_logs: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string | null
+          post_title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          post_title?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          post_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_logs_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media: {
         Row: {
           file_size: number | null
