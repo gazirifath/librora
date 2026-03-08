@@ -1,8 +1,22 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Mail, Download, FileText, BarChart3, TrendingUp } from "lucide-react";
+import {
+  Calendar,
+  Mail,
+  Download,
+  FileText,
+  BarChart3,
+  TrendingUp,
+  ChevronRight,
+  Trophy,
+  FileDown,
+  RefreshCw,
+  Clock,
+  BookOpen,
+} from "lucide-react";
 import { toast } from "sonner";
-import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { format, subMonths, parseISO } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface DailyReport {
   id: string;
@@ -15,8 +29,8 @@ interface DailyReport {
 }
 
 interface MonthlyAggregate {
-  month: string; // e.g. "2026-03"
-  label: string; // e.g. "March 2026"
+  month: string;
+  label: string;
   totalEmails: number;
   totalDownloads: number;
   topBooks: { title: string; count: number }[];
@@ -69,7 +83,6 @@ const DailyReports = () => {
   }, []);
 
   const fetchReports = async () => {
-    // Fetch last 30 for daily view
     const { data, error } = await supabase
       .from("daily_reports")
       .select("*")
@@ -78,7 +91,6 @@ const DailyReports = () => {
     if (error) toast.error(error.message);
     else setReports((data as any) || []);
 
-    // Fetch last 12 months for monthly/yearly views
     const twelveMonthsAgo = format(subMonths(new Date(), 12), "yyyy-MM-dd");
     const { data: allData, error: allErr } = await supabase
       .from("daily_reports")
@@ -119,252 +131,517 @@ const DailyReports = () => {
     return { totalEmails, totalDownloads, topBooks, months: monthlyData.length };
   }, [allReports, monthlyData]);
 
-  if (loading) return <div className="text-muted-foreground">Loading...</div>;
+  const exportDailyCSV = () => {
+    if (!selectedReport) return;
+    const headers = ["Email", "Book", "Category"];
+    const rows = (selectedReport.email_list || []).map((e) => [
+      `"${e.email}"`,
+      `"${e.post_title.replace(/"/g, '""')}"`,
+      `"${e.category}"`,
+    ]);
+    downloadCSV(headers, rows, `report-${selectedReport.report_date}`);
+  };
+
+  const downloadCSV = (headers: string[], rows: (string | number)[][], filename: string) => {
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filename}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported");
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-muted rounded-md animate-pulse" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />
+          ))}
+        </div>
+        <div className="h-64 bg-muted rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   const tabs: { key: TabType; label: string; icon: React.ElementType }[] = [
     { key: "daily", label: "Daily", icon: Calendar },
     { key: "monthly", label: "Monthly", icon: BarChart3 },
-    { key: "yearly", label: "Last 12 Months", icon: TrendingUp },
+    { key: "yearly", label: "12 Months", icon: TrendingUp },
   ];
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-heading text-2xl font-bold text-foreground">Reports</h1>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-foreground tracking-tight">Reports</h1>
+          <p className="text-sm text-muted-foreground mt-1">Daily, monthly & yearly performance summaries</p>
+        </div>
         <button
           onClick={generateNow}
           disabled={generating}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shadow-sm"
         >
-          <FileText className="h-4 w-4" />
-          {generating ? "Generating..." : "Generate Now"}
+          <RefreshCw className={cn("h-4 w-4", generating && "animate-spin")} />
+          {generating ? "Generating..." : "Generate Report"}
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 rounded-lg bg-muted p-1 w-fit">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => { setTab(t.key); setSelectedReport(null); setSelectedMonth(null); }}
-            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              tab === t.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <t.icon className="h-3.5 w-3.5" />
-            {t.label}
-          </button>
-        ))}
+      {/* Quick Stats Bar */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <QuickStat
+          icon={<FileText className="h-5 w-5" />}
+          label="Total Reports"
+          value={allReports.length}
+          color="primary"
+        />
+        <QuickStat
+          icon={<Mail className="h-5 w-5" />}
+          label="Emails (12 mo)"
+          value={yearlyTotals.totalEmails}
+          color="accent"
+        />
+        <QuickStat
+          icon={<Download className="h-5 w-5" />}
+          label="Downloads (12 mo)"
+          value={yearlyTotals.totalDownloads}
+          color="primary"
+        />
+        <QuickStat
+          icon={<TrendingUp className="h-5 w-5" />}
+          label="Avg Emails/Mo"
+          value={yearlyTotals.months ? Math.round(yearlyTotals.totalEmails / yearlyTotals.months) : 0}
+          color="accent"
+        />
       </div>
 
-      {/* Daily Tab */}
-      {tab === "daily" && (
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-2">
-            {reports.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No reports yet. Click "Generate Now" to create one.</p>
-            ) : (
-              reports.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => setSelectedReport(r)}
-                  className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                    selectedReport?.id === r.id ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/40"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Calendar className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-sm font-medium text-foreground">{r.report_date}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {r.total_emails_today} emails</span>
-                    <span className="flex items-center gap-1"><Download className="h-3 w-3" /> {r.total_downloads_today} downloads</span>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-          <div className="md:col-span-2">
-            {selectedReport ? <ReportDetail report={selectedReport} /> : <EmptyState />}
+      {/* Tabs */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="border-b border-border bg-muted/30 px-6 py-3">
+          <div className="flex items-center gap-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => { setTab(t.key); setSelectedReport(null); setSelectedMonth(null); }}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all",
+                  tab === t.key
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <t.icon className="h-3.5 w-3.5" />
+                {t.label}
+              </button>
+            ))}
           </div>
         </div>
-      )}
 
-      {/* Monthly Tab */}
-      {tab === "monthly" && (
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-2">
-            {monthlyData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No monthly data available.</p>
-            ) : (
-              monthlyData.map((m) => (
-                <button
-                  key={m.month}
-                  onClick={() => setSelectedMonth(m)}
-                  className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                    selectedMonth?.month === m.month ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/40"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <BarChart3 className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-sm font-medium text-foreground">{m.label}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {m.totalEmails} emails</span>
-                    <span className="flex items-center gap-1"><Download className="h-3 w-3" /> {m.totalDownloads} downloads</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">{m.days} report day(s)</div>
-                </button>
-              ))
-            )}
-          </div>
-          <div className="md:col-span-2">
-            {selectedMonth ? (
-              <div className="rounded-lg border border-border bg-card p-5 space-y-6">
-                <h2 className="font-heading font-bold text-foreground">{selectedMonth.label}</h2>
-                <div className="grid grid-cols-3 gap-4">
-                  <StatCard label="Emails Collected" value={selectedMonth.totalEmails} />
-                  <StatCard label="Downloads" value={selectedMonth.totalDownloads} />
-                  <StatCard label="Report Days" value={selectedMonth.days} />
+        <div className="p-6">
+          {/* Daily Tab */}
+          {tab === "daily" && (
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Report List */}
+              <div className="md:col-span-1">
+                <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-1">
+                  {reports.length === 0 ? (
+                    <EmptyListState message='No reports yet. Click "Generate Report" to create one.' />
+                  ) : (
+                    reports.map((r) => (
+                      <button
+                        key={r.id}
+                        onClick={() => setSelectedReport(r)}
+                        className={cn(
+                          "w-full text-left rounded-lg border p-3.5 transition-all group",
+                          selectedReport?.id === r.id
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-card hover:border-primary/40 hover:shadow-sm"
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "flex items-center justify-center h-7 w-7 rounded-md",
+                              selectedReport?.id === r.id ? "bg-primary/10" : "bg-muted"
+                            )}>
+                              <Calendar className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <span className="text-sm font-semibold text-foreground">
+                              {format(parseISO(r.report_date), "MMM d, yyyy")}
+                            </span>
+                          </div>
+                          <ChevronRight className={cn(
+                            "h-4 w-4 text-muted-foreground transition-transform",
+                            selectedReport?.id === r.id && "text-primary translate-x-0.5"
+                          )} />
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" /> {r.total_emails_today}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Download className="h-3 w-3" /> {r.total_downloads_today}
+                          </span>
+                          {r.top_books?.length > 0 && (
+                            <span className="flex items-center gap-1">
+                              <BookOpen className="h-3 w-3" /> {r.top_books.length} books
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))
+                  )}
                 </div>
-                <TopBooksTable books={selectedMonth.topBooks} />
               </div>
-            ) : <EmptyState />}
-          </div>
-        </div>
-      )}
 
-      {/* Yearly (Last 12 Months) Tab */}
-      {tab === "yearly" && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Total Emails (12 mo)" value={yearlyTotals.totalEmails} />
-            <StatCard label="Total Downloads (12 mo)" value={yearlyTotals.totalDownloads} />
-            <StatCard label="Months Tracked" value={yearlyTotals.months} />
-            <StatCard label="Avg Emails/Month" value={yearlyTotals.months ? Math.round(yearlyTotals.totalEmails / yearlyTotals.months) : 0} />
-          </div>
-
-          {/* Monthly breakdown chart-like table */}
-          <div className="rounded-lg border border-border bg-card p-5">
-            <h2 className="font-heading font-bold text-foreground mb-4">Monthly Breakdown</h2>
-            {monthlyData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No data available.</p>
-            ) : (
-              <div className="space-y-2">
-                {monthlyData.map((m) => {
-                  const maxEmails = Math.max(...monthlyData.map((d) => d.totalEmails), 1);
-                  const maxDownloads = Math.max(...monthlyData.map((d) => d.totalDownloads), 1);
-                  return (
-                    <div key={m.month} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
-                      <span className="text-sm font-medium text-foreground w-32 shrink-0">{m.label}</span>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-3 w-3 text-primary shrink-0" />
-                          <div className="flex-1 bg-muted rounded-full h-4 overflow-hidden">
-                            <div
-                              className="bg-primary h-full rounded-full transition-all"
-                              style={{ width: `${(m.totalEmails / maxEmails) * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-muted-foreground w-10 text-right">{m.totalEmails}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Download className="h-3 w-3 text-accent-foreground shrink-0" />
-                          <div className="flex-1 bg-muted rounded-full h-4 overflow-hidden">
-                            <div
-                              className="bg-accent h-full rounded-full transition-all"
-                              style={{ width: `${(m.totalDownloads / maxDownloads) * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-muted-foreground w-10 text-right">{m.totalDownloads}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* Report Detail */}
+              <div className="md:col-span-2">
+                {selectedReport ? <ReportDetail report={selectedReport} onExport={exportDailyCSV} /> : <EmptyDetailState />}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Top books across 12 months */}
-          <div className="rounded-lg border border-border bg-card p-5">
-            <h2 className="font-heading font-bold text-foreground mb-4">Top Books (Last 12 Months)</h2>
-            <TopBooksTable books={yearlyTotals.topBooks} />
-          </div>
+          {/* Monthly Tab */}
+          {tab === "monthly" && (
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-1">
+                <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-1">
+                  {monthlyData.length === 0 ? (
+                    <EmptyListState message="No monthly data available." />
+                  ) : (
+                    monthlyData.map((m) => (
+                      <button
+                        key={m.month}
+                        onClick={() => setSelectedMonth(m)}
+                        className={cn(
+                          "w-full text-left rounded-lg border p-3.5 transition-all group",
+                          selectedMonth?.month === m.month
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-card hover:border-primary/40 hover:shadow-sm"
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "flex items-center justify-center h-7 w-7 rounded-md",
+                              selectedMonth?.month === m.month ? "bg-primary/10" : "bg-muted"
+                            )}>
+                              <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <span className="text-sm font-semibold text-foreground">{m.label}</span>
+                          </div>
+                          <ChevronRight className={cn(
+                            "h-4 w-4 text-muted-foreground transition-transform",
+                            selectedMonth?.month === m.month && "text-primary translate-x-0.5"
+                          )} />
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {m.totalEmails}</span>
+                          <span className="flex items-center gap-1"><Download className="h-3 w-3" /> {m.totalDownloads}</span>
+                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {m.days} days</span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                {selectedMonth ? <MonthDetail month={selectedMonth} /> : <EmptyDetailState />}
+              </div>
+            </div>
+          )}
+
+          {/* Yearly Tab */}
+          {tab === "yearly" && (
+            <div className="space-y-6">
+              {/* Monthly Breakdown */}
+              <div>
+                <h3 className="font-heading font-bold text-foreground text-sm mb-4">Monthly Breakdown</h3>
+                {monthlyData.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No data available.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {monthlyData.map((m) => {
+                      const maxEmails = Math.max(...monthlyData.map((d) => d.totalEmails), 1);
+                      const maxDownloads = Math.max(...monthlyData.map((d) => d.totalDownloads), 1);
+                      return (
+                        <div key={m.month} className="rounded-lg border border-border bg-card p-4 hover:shadow-sm transition-shadow">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-sm font-semibold text-foreground">{m.label}</span>
+                            <span className="text-xs text-muted-foreground">{m.days} report days</span>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1.5 w-24 shrink-0">
+                                <Mail className="h-3.5 w-3.5 text-primary" />
+                                <span className="text-xs text-muted-foreground">Emails</span>
+                              </div>
+                              <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
+                                <div
+                                  className="bg-primary h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${Math.max((m.totalEmails / maxEmails) * 100, 2)}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-semibold text-foreground w-10 text-right tabular-nums">{m.totalEmails}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1.5 w-24 shrink-0">
+                                <Download className="h-3.5 w-3.5 text-accent" />
+                                <span className="text-xs text-muted-foreground">Downloads</span>
+                              </div>
+                              <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
+                                <div
+                                  className="bg-accent h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${Math.max((m.totalDownloads / maxDownloads) * 100, 2)}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-semibold text-foreground w-10 text-right tabular-nums">{m.totalDownloads}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Top Books */}
+              {yearlyTotals.topBooks.length > 0 && (
+                <div>
+                  <h3 className="font-heading font-bold text-foreground text-sm mb-4">Top Books (Last 12 Months)</h3>
+                  <TopBooksCard books={yearlyTotals.topBooks} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 
-const StatCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-md bg-muted p-3">
-    <p className="text-xs text-muted-foreground">{label}</p>
-    <p className="text-2xl font-heading font-bold text-foreground">{value}</p>
+/* ─── Sub-components ─── */
+
+const QuickStat = ({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  color: "primary" | "accent";
+}) => (
+  <div className="rounded-xl border border-border bg-card px-4 py-3 hover:shadow-md transition-shadow">
+    <div className="flex items-center gap-2.5 mb-1.5">
+      <div className={cn(
+        "inline-flex items-center justify-center h-8 w-8 rounded-lg",
+        color === "primary" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
+      )}>
+        {icon}
+      </div>
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+    </div>
+    <p className="text-2xl font-heading font-bold text-foreground tracking-tight tabular-nums">{value}</p>
   </div>
 );
 
-const TopBooksTable = ({ books }: { books: { title: string; count: number }[] }) => {
-  if (!books?.length) return <p className="text-sm text-muted-foreground">No book data.</p>;
+const TopBooksCard = ({ books }: { books: { title: string; count: number }[] }) => {
+  const max = Math.max(...books.map((b) => b.count), 1);
   return (
-    <div className="space-y-1">
+    <div className="rounded-xl border border-border bg-card overflow-hidden divide-y divide-border">
       {books.map((b, i) => (
-        <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
-          <span className="text-foreground">{i + 1}. {b.title}</span>
-          <span className="text-muted-foreground font-medium">{b.count}</span>
+        <div key={i} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
+          <div className={cn(
+            "flex items-center justify-center h-7 w-7 rounded-full shrink-0 text-xs font-bold",
+            i < 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            {i < 3 ? <Trophy className="h-3.5 w-3.5" /> : i + 1}
+          </div>
+          <p className="text-sm font-medium text-foreground truncate flex-1">{b.title}</p>
+          <div className="w-28 shrink-0 flex items-center gap-2">
+            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-primary h-full rounded-full transition-all duration-500"
+                style={{ width: `${Math.max((b.count / max) * 100, 2)}%` }}
+              />
+            </div>
+            <span className="text-xs font-semibold text-foreground w-8 text-right tabular-nums">{b.count}</span>
+          </div>
         </div>
       ))}
     </div>
   );
 };
 
-const ReportDetail = ({ report }: { report: DailyReport }) => (
-  <div className="rounded-lg border border-border bg-card p-5 space-y-6">
-    <h2 className="font-heading font-bold text-foreground">Report for {report.report_date}</h2>
-    <div className="grid grid-cols-2 gap-4">
-      <StatCard label="Emails Collected" value={report.total_emails_today} />
-      <StatCard label="Downloads" value={report.total_downloads_today} />
-    </div>
-    {report.top_books?.length > 0 && (
-      <div>
-        <h3 className="text-sm font-medium text-foreground mb-2">Top Books by Emails</h3>
-        <TopBooksTable books={report.top_books} />
+const ReportDetail = ({ report, onExport }: { report: DailyReport; onExport: () => void }) => (
+  <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="px-6 py-4 border-b border-border bg-muted/30">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10">
+            <FileText className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-heading font-bold text-foreground text-sm">
+              {format(parseISO(report.report_date), "EEEE, MMMM d, yyyy")}
+            </h2>
+            <p className="text-xs text-muted-foreground">Daily performance summary</p>
+          </div>
+        </div>
+        {report.email_list?.length > 0 && (
+          <button
+            onClick={onExport}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <FileDown className="h-3.5 w-3.5" />
+            Export
+          </button>
+        )}
       </div>
-    )}
-    {report.email_list?.length > 0 && (
-      <div>
-        <h3 className="text-sm font-medium text-foreground mb-2">Collected Emails</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted">
-                <th className="px-3 py-2 text-left font-medium text-muted-foreground">Email</th>
-                <th className="px-3 py-2 text-left font-medium text-muted-foreground">Book</th>
-                <th className="px-3 py-2 text-left font-medium text-muted-foreground">Category</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.email_list.map((e, i) => (
-                <tr key={i} className="border-b border-border last:border-0">
-                  <td className="px-3 py-2 text-foreground">{e.email}</td>
-                  <td className="px-3 py-2 text-foreground">{e.post_title}</td>
-                  <td className="px-3 py-2">
-                    <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">{e.category}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    </div>
+
+    <div className="p-6 space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-lg bg-muted/50 border border-border p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="h-4 w-4 text-primary" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Emails</span>
+          </div>
+          <p className="text-3xl font-heading font-bold text-foreground tabular-nums">{report.total_emails_today}</p>
+        </div>
+        <div className="rounded-lg bg-muted/50 border border-border p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Download className="h-4 w-4 text-accent" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Downloads</span>
+          </div>
+          <p className="text-3xl font-heading font-bold text-foreground tabular-nums">{report.total_downloads_today}</p>
         </div>
       </div>
-    )}
+
+      {/* Top Books */}
+      {report.top_books?.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            Top Books
+          </h3>
+          <TopBooksCard books={report.top_books} />
+        </div>
+      )}
+
+      {/* Email Table */}
+      {report.email_list?.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Mail className="h-4 w-4 text-primary" />
+            Collected Emails
+          </h3>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Book</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Category</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {report.email_list.map((e, i) => (
+                    <tr key={i} className="hover:bg-muted/20 transition-colors">
+                      <td className="px-4 py-2.5 text-foreground font-medium">{e.email}</td>
+                      <td className="px-4 py-2.5 text-foreground truncate max-w-[200px]">{e.post_title}</td>
+                      <td className="px-4 py-2.5">
+                        <span className="inline-flex items-center text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          {e.category}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   </div>
 );
 
-const EmptyState = () => (
-  <div className="rounded-lg border border-border bg-card p-12 text-center">
-    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-    <p className="text-sm text-muted-foreground">Select an item to view details</p>
+const MonthDetail = ({ month }: { month: MonthlyAggregate }) => (
+  <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="px-6 py-4 border-b border-border bg-muted/30">
+      <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10">
+          <BarChart3 className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <h2 className="font-heading font-bold text-foreground text-sm">{month.label}</h2>
+          <p className="text-xs text-muted-foreground">{month.days} report days aggregated</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-lg bg-muted/50 border border-border p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="h-4 w-4 text-primary" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Emails</span>
+          </div>
+          <p className="text-2xl font-heading font-bold text-foreground tabular-nums">{month.totalEmails}</p>
+        </div>
+        <div className="rounded-lg bg-muted/50 border border-border p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Download className="h-4 w-4 text-accent" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Downloads</span>
+          </div>
+          <p className="text-2xl font-heading font-bold text-foreground tabular-nums">{month.totalDownloads}</p>
+        </div>
+        <div className="rounded-lg bg-muted/50 border border-border p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Days</span>
+          </div>
+          <p className="text-2xl font-heading font-bold text-foreground tabular-nums">{month.days}</p>
+        </div>
+      </div>
+
+      {month.topBooks.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            Top Books
+          </h3>
+          <TopBooksCard books={month.topBooks} />
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const EmptyDetailState = () => (
+  <div className="rounded-xl border border-border bg-card p-16 text-center">
+    <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-muted mx-auto mb-4">
+      <FileText className="h-6 w-6 text-muted-foreground" />
+    </div>
+    <p className="text-sm font-medium text-foreground mb-1">No report selected</p>
+    <p className="text-xs text-muted-foreground">Select a report from the list to view details</p>
+  </div>
+);
+
+const EmptyListState = ({ message }: { message: string }) => (
+  <div className="text-center py-8">
+    <FileText className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+    <p className="text-sm text-muted-foreground">{message}</p>
   </div>
 );
 
