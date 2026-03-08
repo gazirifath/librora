@@ -23,6 +23,7 @@ import AdminSettingsDiscussion from "@/components/admin/SettingsDiscussion";
 import AdminSettingsMedia from "@/components/admin/SettingsMedia";
 import AdminSettingsPermalinks from "@/components/admin/SettingsPermalinks";
 import AdminSettingsPrivacy from "@/components/admin/SettingsPrivacy";
+import AdminDailyReports from "@/components/admin/DailyReports";
 
 const AdminDashboard = () => {
   const { user, loading } = useAuth();
@@ -46,6 +47,7 @@ const AdminDashboard = () => {
         <div className="p-6 md:p-8">
           <Routes>
             <Route index element={<AdminDashboardHome />} />
+            <Route path="reports" element={<AdminDailyReports />} />
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostNew />} />
             <Route path="posts/edit/:id" element={<AdminPostNew />} />

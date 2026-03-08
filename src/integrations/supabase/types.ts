@@ -73,6 +73,36 @@ export type Database = {
           },
         ]
       }
+      daily_reports: {
+        Row: {
+          created_at: string
+          email_list: Json
+          id: string
+          report_date: string
+          top_books: Json
+          total_downloads_today: number
+          total_emails_today: number
+        }
+        Insert: {
+          created_at?: string
+          email_list?: Json
+          id?: string
+          report_date: string
+          top_books?: Json
+          total_downloads_today?: number
+          total_emails_today?: number
+        }
+        Update: {
+          created_at?: string
+          email_list?: Json
+          id?: string
+          report_date?: string
+          top_books?: Json
+          total_downloads_today?: number
+          total_emails_today?: number
+        }
+        Relationships: []
+      }
       download_logs: {
         Row: {
           created_at: string
