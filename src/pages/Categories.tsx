@@ -136,6 +136,7 @@ const Categories = () => {
             })}
           </div>
         </section>
+        <NewsletterCTA />
       </main>
       <Footer />
     </div>
