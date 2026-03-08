@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import AdminLogin from "./AdminLogin";
 import AdminSidebar from "@/components/AdminSidebar";
 import { Routes, Route, Navigate } from "react-router-dom";
+import useRealtimeSync from "@/hooks/useRealtimeSync";
 import AdminDashboardHome from "@/components/admin/DashboardHome";
 import AdminPosts from "@/components/admin/Posts";
 import AdminPostNew from "@/components/admin/PostNew";
