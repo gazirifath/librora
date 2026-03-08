@@ -76,12 +76,15 @@ const PostNew = () => {
     setCoverUrl(urlData.publicUrl);
 
     // Save to media library
-    await supabase.from("media").insert({
+    const { error: mediaError } = await supabase.from("media").insert({
       filename: file.name,
       url: urlData.publicUrl,
       file_size: file.size,
       file_type: file.type,
     });
+    if (mediaError) {
+      console.error("Media insert error:", mediaError);
+    }
 
     toast.success("Image uploaded!");
     setUploading(false);
