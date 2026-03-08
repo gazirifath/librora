@@ -22,6 +22,10 @@ const DashboardHome = () => {
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekStr = weekAgo.toISOString().split("T")[0];
   const thisWeekEmails = emails.filter(e => e.date >= weekStr);
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  const monthStr = monthStart.toISOString().split("T")[0];
+  const thisMonthEmails = emails.filter(e => e.date >= monthStr);
 
   const chartData = useMemo(() => {
     const map: Record<string, number> = {};
@@ -62,6 +66,7 @@ const DashboardHome = () => {
           { label: "Total Emails", value: emails.length, icon: Mail },
           { label: "Today", value: todayEmails.length, icon: Calendar },
           { label: "This Week", value: thisWeekEmails.length, icon: TrendingUp },
+          { label: "This Month", value: thisMonthEmails.length, icon: Mail },
           { label: "Downloads", value: books.reduce((s, b) => s + b.downloadCount, 0).toLocaleString(), icon: Download },
         ].map(stat => (
           <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
