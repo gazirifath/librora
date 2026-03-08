@@ -5,6 +5,7 @@ import { categoryIcons } from "@/pages/Categories";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
+import NewsletterCTA from "@/components/NewsletterCTA";
 
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
