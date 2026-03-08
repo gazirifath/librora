@@ -5,7 +5,7 @@ import {
   FilePlus, LayoutDashboard, Users, UserPlus, UserCircle,
   Wrench, Upload, Download, Settings, Pencil, BookOpen,
   MessageSquare, ImageIcon, LinkIcon, Shield, LogOut, Leaf,
-  ChevronDown, ChevronRight
+  ChevronDown, ChevronRight, Webhook
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
