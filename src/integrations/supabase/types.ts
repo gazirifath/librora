@@ -134,26 +134,38 @@ export type Database = {
       }
       media: {
         Row: {
+          alt_text: string
+          caption: string
+          description: string
           file_size: number | null
           file_type: string | null
           filename: string
           id: string
+          title: string
           uploaded_at: string
           url: string
         }
         Insert: {
+          alt_text?: string
+          caption?: string
+          description?: string
           file_size?: number | null
           file_type?: string | null
           filename: string
           id?: string
+          title?: string
           uploaded_at?: string
           url: string
         }
         Update: {
+          alt_text?: string
+          caption?: string
+          description?: string
           file_size?: number | null
           file_type?: string | null
           filename?: string
           id?: string
+          title?: string
           uploaded_at?: string
           url?: string
         }
