@@ -16,6 +16,7 @@ import DMCA from "./pages/DMCA";
 import AboutUs from "./pages/AboutUs";
 import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
+import Subscribe from "./pages/Subscribe";
 
 const queryClient = new QueryClient();
 
