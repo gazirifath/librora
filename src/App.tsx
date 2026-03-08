@@ -24,6 +24,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:category" element={<Categories />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
