@@ -117,7 +117,7 @@ const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, is
                 disabled={loading}
                 className="w-full rounded-lg gradient-gold py-3 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity disabled:opacity-60"
               >
-                {loading ? "Sending..." : "Get Free PDF"}
+                {loading ? "Sending..." : "Get PDF"}
               </button>
             </form>
             <p className="text-[11px] text-muted-foreground text-center mt-4">

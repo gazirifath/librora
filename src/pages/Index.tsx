@@ -236,7 +236,7 @@ const Index = () => {
               Get Weekly Free Books
             </h2>
             <p className="text-primary-foreground/75 mt-2 max-w-md mx-auto text-sm">
-              Join thousands of readers. New free PDF books delivered to your inbox every week.
+              Join thousands of readers. New PDF books delivered to your inbox every week.
             </p>
             <form onSubmit={handleNewsletter} className="mt-6 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
