@@ -50,12 +50,12 @@ const Posts = () => {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link to={`/admin/posts/edit/${post.id}`} className="text-muted-foreground hover:text-foreground">
-                        <Pencil className="h-4 w-4" />
+                    <div className="flex items-center justify-end gap-3">
+                      <Link to={`/admin/posts/edit/${post.id}`} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                        <Pencil className="h-3.5 w-3.5" /> Edit
                       </Link>
-                      <button onClick={() => { if (confirm("Delete this post?")) deletePost.mutate(post.id); }} className="text-muted-foreground hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
+                      <button onClick={() => { if (confirm("Delete this post?")) deletePost.mutate(post.id); }} className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors">
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
                       </button>
                     </div>
                   </td>
