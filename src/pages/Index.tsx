@@ -73,12 +73,12 @@ const Index = () => {
   }, [search, posts]);
 
   const popularBooks = useMemo(
-    () => [...posts].sort((a, b) => (b.download_count || 0) - (a.download_count || 0)).slice(0, 4),
+    () => [...posts].sort((a, b) => (b.download_count || 0) - (a.download_count || 0)).slice(0, 8),
     [posts]
   );
 
   const recentBooks = useMemo(
-    () => [...posts].slice(0, 4),
+    () => [...posts].slice(0, 8),
     [posts]
   );
 
