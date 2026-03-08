@@ -13,6 +13,7 @@ const MediaNew = () => {
   const handleUpload = async (files: FileList | null) => {
     if (!files?.length) return;
     setUploading(true);
+    let lastId: string | undefined;
     try {
       for (const file of Array.from(files)) {
         const filename = `${Date.now()}-${file.name}`;
@@ -21,17 +22,22 @@ const MediaNew = () => {
 
         const { data: { publicUrl } } = supabase.storage.from("media").getPublicUrl(filename);
 
-        const { error: dbError } = await supabase.from("media").insert({
+        const { data: dbData, error: dbError } = await supabase.from("media").insert({
           filename,
           url: publicUrl,
           file_type: file.type,
           file_size: file.size,
-        });
+        }).select("id").single();
         if (dbError) throw dbError;
+        lastId = dbData?.id;
       }
       qc.invalidateQueries({ queryKey: ["media"] });
       toast.success(`${files.length} file(s) uploaded`);
-      navigate("/admin/media");
+      if (lastId) {
+        navigate(`/admin/media/edit/${lastId}`);
+      } else {
+        navigate("/admin/media");
+      }
     } catch (err: any) {
       toast.error(err.message);
     } finally {
