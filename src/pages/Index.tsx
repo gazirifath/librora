@@ -3,6 +3,7 @@ import { Search, TrendingUp, BookOpen, Leaf, Download, Clock } from "lucide-reac
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import BookCard, { BookCardPost } from "@/components/BookCard";
+import AllBooksSection from "@/components/AllBooksSection";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -72,12 +73,12 @@ const Index = () => {
   }, [search, posts]);
 
   const popularBooks = useMemo(
-    () => [...posts].sort((a, b) => (b.download_count || 0) - (a.download_count || 0)).slice(0, 4),
+    () => [...posts].sort((a, b) => (b.download_count || 0) - (a.download_count || 0)).slice(0, 8),
     [posts]
   );
 
   const recentBooks = useMemo(
-    () => [...posts].slice(0, 4),
+    () => [...posts].slice(0, 8),
     [posts]
   );
 
@@ -214,11 +215,12 @@ const Index = () => {
           </section>
         )}
 
+        {/* All Books paginated */}
+        {!loading && posts.length > 0 && <AllBooksSection posts={posts} />}
+
         {loading && (
           <div className="py-16 text-center text-muted-foreground">Loading books...</div>
         )}
-
-        
 
         {/* Ad space */}
         <section className="py-8">
