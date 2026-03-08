@@ -116,7 +116,7 @@ const Index = () => {
           <div className="animate-fade-in">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 px-4 py-1.5 mb-6">
               <Leaf className="h-4 w-4 text-primary-foreground" />
-              <span className="text-xs font-medium text-primary-foreground">Free PDF Books</span>
+              <span className="text-xs font-medium text-primary-foreground">PDF Books</span>
             </div>
             <h1 className="font-heading text-4xl md:text-6xl font-bold text-primary-foreground max-w-3xl mx-auto leading-tight">
               Download the World's Best Books for Free
