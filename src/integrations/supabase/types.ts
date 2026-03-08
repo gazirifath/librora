@@ -194,6 +194,10 @@ export type Database = {
           affiliate_url: string | null
           author: string
           category_id: string | null
+          cover_alt_text: string | null
+          cover_caption: string | null
+          cover_description: string | null
+          cover_title: string | null
           cover_url: string | null
           created_at: string
           download_count: number | null
@@ -212,6 +216,10 @@ export type Database = {
           affiliate_url?: string | null
           author?: string
           category_id?: string | null
+          cover_alt_text?: string | null
+          cover_caption?: string | null
+          cover_description?: string | null
+          cover_title?: string | null
           cover_url?: string | null
           created_at?: string
           download_count?: number | null
@@ -230,6 +238,10 @@ export type Database = {
           affiliate_url?: string | null
           author?: string
           category_id?: string | null
+          cover_alt_text?: string | null
+          cover_caption?: string | null
+          cover_description?: string | null
+          cover_title?: string | null
           cover_url?: string | null
           created_at?: string
           download_count?: number | null
