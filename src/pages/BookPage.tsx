@@ -247,7 +247,7 @@ const BookPage = () => {
                 Get the PDF download
               </h3>
               <p className="text-sm text-primary-foreground/75 mt-2">
-                Download and read offline anytime, completely free.
+                Download and read offline anytime.
               </p>
               <button
                 onClick={() => setShowPopup(true)}
