@@ -52,8 +52,8 @@ const NewsletterCTA = () => {
         <div className="absolute top-1/2 left-[5%] h-12 w-12 rotate-45 border-2 border-primary-foreground" />
       </div>
 
-      <div className="container relative z-10 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/15 px-4 py-1.5 mb-5">
+      <div className="container relative z-10 text-center px-5 sm:px-6">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/15 px-3 py-1 sm:px-4 sm:py-1.5 mb-4 md:mb-5">
           <Mail className="h-4 w-4 text-primary-foreground/80" />
           <span className="text-xs font-medium tracking-wide uppercase text-primary-foreground/80">
             Free Weekly Newsletter
