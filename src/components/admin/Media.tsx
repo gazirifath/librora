@@ -25,7 +25,7 @@ const Media = () => {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {media.map((file: any) => (
-            <div key={file.id} className="rounded-lg border border-border bg-card overflow-hidden group relative">
+            <Link to={`/admin/media/edit/${file.id}`} key={file.id} className="rounded-lg border border-border bg-card overflow-hidden group relative hover:ring-2 hover:ring-primary/40 transition-all cursor-pointer">
               {file.file_type?.startsWith("image") ? (
                 <img src={file.url} alt={file.filename} className="w-full h-28 object-cover" />
               ) : (
@@ -37,12 +37,12 @@ const Media = () => {
                 <p className="text-xs text-foreground truncate">{file.filename}</p>
               </div>
               <button
-                onClick={() => { if (confirm("Delete?")) deleteMedia.mutate({ id: file.id, filename: file.filename }); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm("Delete?")) deleteMedia.mutate({ id: file.id, filename: file.filename }); }}
                 className="absolute top-1 right-1 bg-destructive/90 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="h-3 w-3" />
               </button>
-            </div>
+            </Link>
           ))}
         </div>
       )}
