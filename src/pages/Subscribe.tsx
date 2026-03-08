@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-import { BookOpen, Gift, Newspaper, Sparkles, CheckCircle } from "lucide-react";
+import { BookOpen, Gift, Newspaper, Sparkles, CheckCircle, ArrowRight, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const benefits = [
   { icon: BookOpen, title: "Premium PDF Books", desc: "Curated book PDFs delivered straight to your inbox every week." },
@@ -11,19 +13,66 @@ const benefits = [
 ];
 
 const Subscribe = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.includes("@")) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("newsletter_subscribers").insert({ email });
+      if (error) {
+        if (error.code === "23505") toast.info("You're already subscribed!");
+        else throw error;
+      } else {
+        toast.success("You're in! Welcome to the Librora weekly list 📚");
+      }
+      setEmail("");
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero */}
+        {/* Hero with subscribe form */}
         <section className="bg-primary/5 py-16 md:py-24">
           <div className="container max-w-3xl text-center">
             <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
               Subscribe to Our Newsletter
             </h1>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
               Join thousands of book lovers who receive weekly PDF books, exclusive offers, summaries, and the latest book news — completely free.
             </p>
+
+            {/* Big subscribe form */}
+            <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                required
+                className="w-full rounded-xl border border-border bg-background px-5 py-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl gradient-hero px-8 py-5 text-lg font-bold text-primary-foreground shadow-lg hover:opacity-95 transition-opacity flex items-center justify-center gap-3 disabled:opacity-60"
+              >
+                <Mail className="h-5 w-5" />
+                {loading ? "Subscribing..." : "Subscribe Now — It's Free"}
+                {!loading && <ArrowRight className="h-5 w-5" />}
+              </button>
+              <p className="text-xs text-muted-foreground">No spam, ever. Unsubscribe anytime with one click.</p>
+            </form>
           </div>
         </section>
 
@@ -69,7 +118,6 @@ const Subscribe = () => {
             </div>
           </div>
         </section>
-
       </main>
       <Footer />
     </div>
