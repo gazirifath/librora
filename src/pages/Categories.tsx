@@ -19,6 +19,7 @@ const categoryIcons: Record<string, string> = {
 export { categoryIcons };
 
 const Categories = () => {
+  const [search, setSearch] = useState("");
   const categoryStats = useMemo(() => {
     return categories.map((cat) => {
       const catBooks = books.filter((b) => b.category === cat);
