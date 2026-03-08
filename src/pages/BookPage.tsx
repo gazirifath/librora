@@ -108,6 +108,11 @@ const BookPage = () => {
           </div>
         </section>
 
+        {/* Ad space */}
+        <div className="container pb-6">
+          <div className="min-h-[90px]" id="ad-bookpage"></div>
+        </div>
+
 
         {/* Summary */}
         <section className="container pb-12">
