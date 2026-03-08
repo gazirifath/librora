@@ -9,6 +9,7 @@ import AdminPostCategories from "@/components/admin/PostCategories";
 import AdminPostTags from "@/components/admin/PostTags";
 import AdminMedia from "@/components/admin/Media";
 import AdminMediaNew from "@/components/admin/MediaNew";
+import AdminMediaEdit from "@/components/admin/MediaEdit";
 import AdminPages from "@/components/admin/Pages";
 import AdminPageNew from "@/components/admin/PageNew";
 import AdminUsers from "@/components/admin/Users";
