@@ -70,8 +70,6 @@ const Subscribe = () => {
           </div>
         </section>
 
-        {/* CTA */}
-        <NewsletterCTA />
       </main>
       <Footer />
     </div>

@@ -275,7 +275,7 @@ const BookPage = () => {
           </section>
         )}
 
-        <NewsletterCTA />
+        
       </main>
 
       <Footer />

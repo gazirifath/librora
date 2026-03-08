@@ -218,7 +218,7 @@ const Index = () => {
           <div className="py-16 text-center text-muted-foreground">Loading books...</div>
         )}
 
-        <NewsletterCTA />
+        
 
         {/* Ad space */}
         <section className="py-8">

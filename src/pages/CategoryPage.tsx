@@ -117,7 +117,7 @@ const CategoryPage = () => {
             </div>
           )}
         </section>
-        <NewsletterCTA />
+        
       </main>
       <Footer />
     </div>
