@@ -15,6 +15,8 @@ const categoryIcons: Record<string, string> = {
   Philosophy: "📜",
 };
 
+export { categoryIcons };
+
 const Categories = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -53,36 +55,6 @@ const Categories = () => {
               );
             })}
           </div>
-        </section>
-
-        {/* All books grouped by category */}
-        <section className="container pb-16">
-          {categories.map((cat) => {
-            const catBooks = books.filter((b) => b.category === cat);
-            if (catBooks.length === 0) return null;
-            return (
-              <div key={cat} id={cat.toLowerCase().replace(/\s+/g, "-")} className="mb-12">
-                <h2 className="font-heading text-2xl font-bold text-foreground mb-5 flex items-center gap-2">
-                  <span>{categoryIcons[cat] || "📚"}</span> {cat}
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {catBooks.map((book) => (
-                    <Link
-                      key={book.slug}
-                      to={`/${book.slug}`}
-                      className="rounded-lg border border-border bg-card p-5 hover:shadow-book transition-all duration-300 group"
-                    >
-                      <h3 className="font-heading font-bold text-foreground group-hover:text-primary transition-colors">
-                        {book.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">by {book.author}</p>
-                      <p className="text-xs text-muted-foreground mt-2">{book.readingTime} read</p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
         </section>
       </main>
       <Footer />
