@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import BookCard, { BookCardPost } from "@/components/BookCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import NewsletterCTA from "@/components/NewsletterCTA";
+
 import { toast } from "sonner";
 
 interface DbPost {
@@ -218,7 +218,7 @@ const Index = () => {
           <div className="py-16 text-center text-muted-foreground">Loading books...</div>
         )}
 
-        <NewsletterCTA />
+        
 
         {/* Ad space */}
         <section className="py-8">
