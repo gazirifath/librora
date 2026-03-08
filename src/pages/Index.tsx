@@ -3,6 +3,7 @@ import { Search, TrendingUp, BookOpen, Leaf, Download, Clock } from "lucide-reac
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import BookCard, { BookCardPost } from "@/components/BookCard";
+import AllBooksSection from "@/components/AllBooksSection";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
