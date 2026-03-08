@@ -1,6 +1,6 @@
 import { usePosts, useDeletePost } from "@/hooks/useAdminData";
 import { Link } from "react-router-dom";
-import { PlusCircle, Pencil, Trash2 } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 const Posts = () => {
   const { data: posts, isLoading } = usePosts();
@@ -51,6 +51,9 @@ const Posts = () => {
                   <td className="px-4 py-3 text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-3">
+                      <a href={`/${post.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                        <ExternalLink className="h-3.5 w-3.5" /> Visit
+                      </a>
                       <Link to={`/admin/posts/edit/${post.id}`} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
                         <Pencil className="h-3.5 w-3.5" /> Edit
                       </Link>
