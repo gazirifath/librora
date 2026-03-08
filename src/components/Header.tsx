@@ -1,14 +1,23 @@
 import { Link } from "react-router-dom";
-import { Leaf, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Leaf, Facebook, Instagram, Linkedin, Menu, X } from "lucide-react";
 import { useSettings } from "@/hooks/useAdminData";
+import { useState } from "react";
 
 const Header = () => {
   const { data: settings } = useSettings();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const socialLinks = [
     { key: "social_facebook", icon: Facebook, label: "Facebook" },
     { key: "social_instagram", icon: Instagram, label: "Instagram" },
     { key: "social_linkedin", icon: Linkedin, label: "LinkedIn" },
+  ];
+
+  const navLinks = [
+    { to: "/", label: "Home" },
+    { to: "/categories", label: "Categories" },
+    { to: "/about", label: "About Us" },
+    { to: "/privacy", label: "Privacy Policy" },
   ];
 
   return (
@@ -18,39 +27,69 @@ const Header = () => {
           <Leaf className="h-7 w-7 text-primary" />
           <span className="text-xl font-heading font-bold text-foreground">Librora</span>
         </Link>
+
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
-          <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Home
-          </Link>
-          <Link to="/categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Categories
-          </Link>
-          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            About Us
-          </Link>
-          <Link to="/privacy" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Privacy Policy
-          </Link>
+          {navLinks.map((link) => (
+            <Link key={link.to} to={link.to} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              {link.label}
+            </Link>
+          ))}
         </nav>
+
         <div className="flex items-center gap-3">
-          {socialLinks.map(({ key, icon: Icon, label }) => {
-            const url = settings?.[key];
-            if (!url) return null;
-            return (
-              <a
-                key={key}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            );
-          })}
+          {/* Social icons – desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {socialLinks.map(({ key, icon: Icon, label }) => {
+              const url = settings?.[key];
+              if (!url) return null;
+              return (
+                <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Icon className="h-4 w-4" />
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-border bg-background animate-in slide-in-from-top-2 duration-200">
+          <nav className="container py-4 flex flex-col gap-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileOpen(false)}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="container pb-4 flex items-center gap-4 border-t border-border pt-3">
+            {socialLinks.map(({ key, icon: Icon, label }) => {
+              const url = settings?.[key];
+              if (!url) return null;
+              return (
+                <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="text-muted-foreground hover:text-primary transition-colors">
+                  <Icon className="h-5 w-5" />
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
