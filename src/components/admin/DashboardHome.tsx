@@ -33,6 +33,14 @@ const DashboardHome = () => {
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [emails]);
 
+  const rankedBooks = useMemo(() => {
+    const map: Record<string, number> = {};
+    emails.forEach(e => { map[e.bookTitle] = (map[e.bookTitle] || 0) + 1; });
+    return Object.entries(map)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [emails]);
+
   const filteredEmails = useMemo(() => {
     return emails.filter(e => {
       if (dateFrom && e.date < dateFrom) return false;
