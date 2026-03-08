@@ -237,16 +237,36 @@ const DashboardHome = () => {
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Rank</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Book</th>
                 <th className="px-4 py-3 text-right font-medium text-muted-foreground">Emails</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {rankedBooks.map((book, i) => (
-                <tr key={book.name} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 text-foreground font-bold">{i + 1}</td>
-                  <td className="px-4 py-3 text-foreground">{book.name}</td>
-                  <td className="px-4 py-3 text-right font-heading font-bold text-foreground">{book.count}</td>
-                </tr>
-              ))}
+              {rankedBooks.map((book, i) => {
+                const matchedPost = posts?.find((p: any) => p.title === book.name);
+                return (
+                  <tr key={book.name} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3 text-foreground font-bold">{i + 1}</td>
+                    <td className="px-4 py-3 text-foreground">{book.name}</td>
+                    <td className="px-4 py-3 text-right font-heading font-bold text-foreground">{book.count}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {matchedPost ? (
+                          <>
+                            <Link to={`/admin/posts/edit/${matchedPost.id}`} className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80">
+                              <Pencil className="h-3.5 w-3.5" /> Edit
+                            </Link>
+                            <Link to={`/${matchedPost.slug}`} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                              <Eye className="h-3.5 w-3.5" /> View
+                            </Link>
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
