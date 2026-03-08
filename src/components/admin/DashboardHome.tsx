@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { getEmails, exportEmailsCSV, books } from "@/data/books";
 import {
   Mail, Download, TrendingUp, Calendar,
-  FileDown, BarChart3
+  FileDown, BarChart3, Trophy
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
