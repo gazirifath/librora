@@ -23,6 +23,7 @@ import AdminSettingsDiscussion from "@/components/admin/SettingsDiscussion";
 import AdminSettingsMedia from "@/components/admin/SettingsMedia";
 import AdminSettingsPermalinks from "@/components/admin/SettingsPermalinks";
 import AdminSettingsPrivacy from "@/components/admin/SettingsPrivacy";
+import AdminSettingsSocial from "@/components/admin/SettingsSocial";
 import AdminDailyReports from "@/components/admin/DailyReports";
 import AdminAutomation from "@/components/admin/AutomationSettings";
 import AdminAnalytics from "@/components/admin/Analytics";
