@@ -68,7 +68,7 @@ const NewsletterCTA = () => {
         </p>
 
         {/* Feature pills */}
-        <div className="flex flex-wrap justify-center gap-2 mt-6">
+        <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6">
           {features.map(({ icon: Icon, label }) => (
             <span
               key={label}
