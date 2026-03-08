@@ -206,6 +206,12 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Ad space */}
+        <section className="py-8">
+          <div className="container">
+            <div className="min-h-[90px]" id="ad-homepage"></div>
+          </div>
+        </section>
       </main>
 
       <Footer />
