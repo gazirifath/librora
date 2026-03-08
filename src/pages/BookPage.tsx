@@ -243,18 +243,22 @@ const BookPage = () => {
         <section className="container pb-12">
           <div className="max-w-3xl">
             <div className="gradient-hero rounded-xl p-8 text-center">
-              <h3 className="font-heading text-xl font-bold text-primary-foreground">
-                Get the PDF download
+              <Download className="h-8 w-8 text-primary-foreground mx-auto mb-3" />
+              <h3 className="font-heading text-2xl font-bold text-primary-foreground">
+                Ready to dive in?
               </h3>
-              <p className="text-sm text-primary-foreground/75 mt-2">
-                Download and read offline anytime.
+              <p className="text-sm text-primary-foreground/75 mt-2 max-w-md mx-auto">
+                Grab your PDF copy of <span className="font-semibold text-primary-foreground">{book.title}</span> and start reading — online or offline, on any device.
               </p>
               <button
                 onClick={() => setShowPopup(true)}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg gradient-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg gradient-gold px-8 py-3.5 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity"
               >
-                <Download className="h-4 w-4" /> Download PDF
+                <Download className="h-4 w-4" /> Get Your PDF Now
               </button>
+              <p className="text-xs text-primary-foreground/50 mt-3">
+                Instant download • No sign-up required
+              </p>
             </div>
           </div>
         </section>
