@@ -65,6 +65,26 @@ const Analytics = () => {
   const maxDownloads = Math.max(...byDownloads.map((b) => b.download_count), 1);
   const maxEmails = Math.max(...byEmails.map((b) => b.email_count), 1);
 
+  const exportCSV = () => {
+    const headers = ["Title", "Author", "Category", "Downloads", "Emails"];
+    const rows = byDownloads.map((b) => [
+      `"${b.title.replace(/"/g, '""')}"`,
+      `"${b.author.replace(/"/g, '""')}"`,
+      `"${b.category_name || ""}"`,
+      b.download_count,
+      b.email_count,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported");
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
