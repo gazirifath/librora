@@ -70,8 +70,7 @@ const PageNew = () => {
         </div>
         <div>
           <label className="text-sm font-medium text-foreground block mb-1">Content</label>
-          <textarea rows={12} value={content} onChange={e => setContent(e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+          <RichTextEditor content={content} onChange={setContent} />
         </div>
         <div className="flex items-center gap-4">
           <select value={status} onChange={e => setStatus(e.target.value)}
