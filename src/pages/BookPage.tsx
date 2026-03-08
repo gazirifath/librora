@@ -162,7 +162,7 @@ const BookPage = () => {
                   onClick={() => setShowPopup(true)}
                   className="flex items-center justify-center gap-2 rounded-lg gradient-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity"
                 >
-                  <Download className="h-4 w-4" /> Download Free PDF
+                   <Download className="h-4 w-4" /> Download PDF
                 </button>
                 {book.affiliate_url && (
                   <a
