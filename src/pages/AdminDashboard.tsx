@@ -24,6 +24,7 @@ import AdminSettingsMedia from "@/components/admin/SettingsMedia";
 import AdminSettingsPermalinks from "@/components/admin/SettingsPermalinks";
 import AdminSettingsPrivacy from "@/components/admin/SettingsPrivacy";
 import AdminDailyReports from "@/components/admin/DailyReports";
+import AdminAutomation from "@/components/admin/AutomationSettings";
 
 const AdminDashboard = () => {
   const { user, loading } = useAuth();
