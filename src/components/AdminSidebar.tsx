@@ -22,6 +22,7 @@ const menuItems: MenuItem[] = [
   { label: "Reports", icon: FileText, path: "/admin/reports" },
   { label: "Analytics", icon: BarChart3, path: "/admin/analytics" },
   { label: "Automation", icon: Webhook, path: "/admin/automation" },
+  { label: "Newsletter", icon: Mail, path: "/admin/newsletter" },
   {
     label: "Books", icon: FileText, children: [
       { label: "All Books", path: "/admin/posts" },

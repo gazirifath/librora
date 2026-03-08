@@ -53,6 +53,7 @@ const AdminDashboard = () => {
             <Route path="reports" element={<AdminDailyReports />} />
             <Route path="automation" element={<AdminAutomation />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="newsletter" element={<AdminNewsletter />} />
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostNew />} />
             <Route path="posts/edit/:id" element={<AdminPostNew />} />
