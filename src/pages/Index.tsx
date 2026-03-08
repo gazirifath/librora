@@ -119,10 +119,10 @@ const Index = () => {
               <span className="text-xs font-medium text-primary-foreground">Free PDF Books</span>
             </div>
             <h1 className="font-heading text-4xl md:text-6xl font-bold text-primary-foreground max-w-3xl mx-auto leading-tight">
-              Read the World's Best Books in Minutes
+              Download the World's Best Books for Free
             </h1>
             <p className="text-primary-foreground/75 mt-4 text-lg max-w-xl mx-auto">
-              High-quality summaries of bestselling non-fiction books. Download free PDFs and master key ideas.
+              Free PDF downloads of bestselling non-fiction books. Read offline and master key ideas.
             </p>
           </div>
 
