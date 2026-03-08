@@ -186,7 +186,7 @@ const BookPage = () => {
         {book.summary && (
           <section className="container pb-12">
             <div className="max-w-3xl">
-              <h2 className="font-heading text-2xl font-bold text-foreground mb-6">Book Summary</h2>
+              <h2 className="font-heading text-2xl font-bold text-foreground mb-6">About This Book</h2>
               <div className="prose prose-sm max-w-none text-foreground/90 leading-relaxed space-y-4">
                 {book.summary.split("\n\n").map((p, i) => (
                   <p key={i}>{p}</p>
