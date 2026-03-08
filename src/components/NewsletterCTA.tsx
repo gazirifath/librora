@@ -60,10 +60,10 @@ const NewsletterCTA = () => {
           </span>
         </div>
 
-        <h2 className="font-heading text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-primary-foreground leading-tight">
+        <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-primary-foreground leading-tight">
           Get Weekly PDF Books
         </h2>
-        <p className="text-primary-foreground/70 mt-3 max-w-lg mx-auto text-sm md:text-base leading-relaxed">
+        <p className="text-primary-foreground/70 mt-2 sm:mt-3 max-w-lg mx-auto text-xs sm:text-sm md:text-base leading-relaxed">
           Join thousands of readers. Premium book PDFs, exclusive offers, summaries & the latest book news — delivered to your inbox every week.
         </p>
 
