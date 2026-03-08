@@ -47,6 +47,7 @@ const AdminDashboard = () => {
         <div className="p-6 md:p-8">
           <Routes>
             <Route index element={<AdminDashboardHome />} />
+            <Route path="reports" element={<AdminDailyReports />} />
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostNew />} />
             <Route path="posts/edit/:id" element={<AdminPostNew />} />
