@@ -44,9 +44,9 @@ const NewsletterCTA = () => {
   };
 
   return (
-    <section className="py-16 md:py-20 gradient-hero relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 opacity-[0.04]">
+    <section className="py-12 md:py-20 gradient-hero relative overflow-hidden">
+      {/* Decorative background elements — hidden on small screens */}
+      <div className="absolute inset-0 opacity-[0.04] hidden sm:block">
         <div className="absolute top-6 left-[10%] h-24 w-24 rounded-full border-2 border-primary-foreground" />
         <div className="absolute bottom-8 right-[15%] h-16 w-16 rounded-full border-2 border-primary-foreground" />
         <div className="absolute top-1/2 left-[5%] h-12 w-12 rotate-45 border-2 border-primary-foreground" />
