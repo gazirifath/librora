@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import BookPage from "./pages/BookPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import Categories from "./pages/Categories";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
