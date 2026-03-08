@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCategories, useCreatePost, useUpdatePost, usePost } from "@/hooks/useAdminData";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Upload, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const PostNew = () => {
   const navigate = useNavigate();
@@ -25,6 +27,14 @@ const PostNew = () => {
   const [status, setStatus] = useState("draft");
   const [loaded, setLoaded] = useState(false);
 
+  // Image fields
+  const [coverUrl, setCoverUrl] = useState("");
+  const [coverAltText, setCoverAltText] = useState("");
+  const [coverTitle, setCoverTitle] = useState("");
+  const [coverCaption, setCoverCaption] = useState("");
+  const [coverDescription, setCoverDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
+
   if (isEdit && existingPost && !loaded) {
     setTitle(existingPost.title);
     setSlug(existingPost.slug);
@@ -37,8 +47,43 @@ const PostNew = () => {
     setKeyLessons((existingPost.key_lessons || []).join("\n"));
     setFaq(Array.isArray(existingPost.faq) ? existingPost.faq as { question: string; answer: string }[] : []);
     setStatus(existingPost.status);
+    setCoverUrl(existingPost.cover_url || "");
+    setCoverAltText((existingPost as any).cover_alt_text || "");
+    setCoverTitle((existingPost as any).cover_title || "");
+    setCoverCaption((existingPost as any).cover_caption || "");
+    setCoverDescription((existingPost as any).cover_description || "");
     setLoaded(true);
   }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `covers/${fileName}`;
+
+    const { error } = await supabase.storage.from("media").upload(filePath, file);
+    if (error) {
+      toast.error("Upload failed: " + error.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+    setCoverUrl(urlData.publicUrl);
+    toast.success("Image uploaded!");
+    setUploading(false);
+  };
+
+  const removeCover = () => {
+    setCoverUrl("");
+    setCoverAltText("");
+    setCoverTitle("");
+    setCoverCaption("");
+    setCoverDescription("");
+  };
 
   const addFaq = () => setFaq([...faq, { question: "", answer: "" }]);
   const removeFaq = (i: number) => setFaq(faq.filter((_, idx) => idx !== i));
@@ -50,7 +95,7 @@ const PostNew = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = {
+    const data: any = {
       title,
       slug: slug || title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
       author,
@@ -62,6 +107,11 @@ const PostNew = () => {
       key_lessons: keyLessons.split("\n").filter(Boolean),
       faq: faq.filter(f => f.question.trim()),
       status,
+      cover_url: coverUrl,
+      cover_alt_text: coverAltText,
+      cover_title: coverTitle,
+      cover_caption: coverCaption,
+      cover_description: coverDescription,
     };
 
     if (isEdit) {
@@ -104,6 +154,57 @@ const PostNew = () => {
             </select>
           </div>
         </div>
+
+        {/* Cover Image Upload */}
+        <div>
+          <label className="text-sm font-medium text-foreground block mb-2">Cover Image</label>
+          {coverUrl ? (
+            <div className="space-y-3">
+              <div className="relative inline-block">
+                <img src={coverUrl} alt={coverAltText || "Cover"} className="max-h-48 rounded-md border border-border object-cover" />
+                <button type="button" onClick={removeCover}
+                  className="absolute -top-2 -right-2 rounded-full bg-destructive p-1 text-destructive-foreground hover:bg-destructive/90">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Alternative Text</label>
+                  <input type="text" value={coverAltText} onChange={e => setCoverAltText(e.target.value)}
+                    placeholder="Describe the image for accessibility"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Title</label>
+                  <input type="text" value={coverTitle} onChange={e => setCoverTitle(e.target.value)}
+                    placeholder="Image title"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Caption</label>
+                  <input type="text" value={coverCaption} onChange={e => setCoverCaption(e.target.value)}
+                    placeholder="Caption displayed below the image"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Description</label>
+                  <textarea rows={2} value={coverDescription} onChange={e => setCoverDescription(e.target.value)}
+                    placeholder="Detailed description of the image"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-input bg-background p-6 cursor-pointer hover:border-primary/50 transition-colors">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {uploading ? "Uploading..." : "Click to upload cover image"}
+              </span>
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
+            </label>
+          )}
+        </div>
+
         <div>
           <label className="text-sm font-medium text-foreground block mb-1">Summary</label>
           <textarea rows={8} value={summary} onChange={e => setSummary(e.target.value)}
