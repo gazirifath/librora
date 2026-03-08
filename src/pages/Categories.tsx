@@ -13,7 +13,7 @@ const categoryIcons: Record<string, string> = {
   Productivity: "⚡",
   Finance: "💰",
   Leadership: "🎯",
-  Health: "❤️",
+  
   Philosophy: "📜",
   "Health & Wellness": "🧘",
   "Science & Technology": "🔬",
