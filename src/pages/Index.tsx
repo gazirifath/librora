@@ -96,16 +96,6 @@ const Index = () => {
 
   const maxDl = Math.max(...catStats.map(c => c.totalDl), 1);
 
-  const handleNewsletter = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail.includes("@")) {
-      toast.error("Please enter a valid email");
-      return;
-    }
-    toast.success("Subscribed! Welcome to Librora.");
-    setNewsletterEmail("");
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
