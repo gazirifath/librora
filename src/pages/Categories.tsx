@@ -1,9 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { categories, books } from "@/data/books";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowRight, TrendingUp, Download, Flame, Clock } from "lucide-react";
+import { ArrowRight, TrendingUp, Download, Flame, Clock, Search } from "lucide-react";
 
 const categoryIcons: Record<string, string> = {
   "Self-Help": "🌱",
@@ -19,6 +19,7 @@ const categoryIcons: Record<string, string> = {
 export { categoryIcons };
 
 const Categories = () => {
+  const [search, setSearch] = useState("");
   const categoryStats = useMemo(() => {
     return categories.map((cat) => {
       const catBooks = books.filter((b) => b.category === cat);
@@ -60,8 +61,19 @@ const Categories = () => {
             Explore our curated book summaries organized by topic.
           </p>
 
+          <div className="relative max-w-md mb-8">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search categories..."
+              className="w-full rounded-lg border border-input bg-background pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {categoryStats.map(({ cat, catBooks, totalDownloads, recentBooks, avgDownloads }) => {
+            {categoryStats.filter(({ cat }) => cat.toLowerCase().includes(search.toLowerCase())).map(({ cat, catBooks, totalDownloads, recentBooks, avgDownloads }) => {
               const isTrending = trendingCats.has(cat);
               const isTopDownload = cat === topDownloadCat;
               const downloadPercent = Math.round((totalDownloads / maxDownloads) * 100);
