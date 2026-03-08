@@ -105,6 +105,34 @@ const DashboardHome = () => {
         </div>
       </div>
 
+
+      <div className="rounded-lg border border-border bg-card overflow-hidden mb-8">
+        <div className="p-4 border-b border-border flex items-center gap-2">
+          <Trophy className="h-4 w-4 text-primary" />
+          <h2 className="font-heading font-bold text-foreground">Books Ranked by Emails</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Rank</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Book</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Emails</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rankedBooks.map((book, i) => (
+                <tr key={book.name} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3 text-foreground font-bold">{i + 1}</td>
+                  <td className="px-4 py-3 text-foreground">{book.name}</td>
+                  <td className="px-4 py-3 text-right font-heading font-bold text-foreground">{book.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div className="rounded-lg border border-border bg-card p-5 mb-8">
         <div className="flex items-center gap-2 mb-3">
           <FileDown className="h-4 w-4 text-primary" />
