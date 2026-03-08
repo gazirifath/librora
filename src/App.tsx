@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/dmca" element={<DMCA />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/subscribe" element={<Subscribe />} />
             <Route path="/:slug" element={<BookPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
