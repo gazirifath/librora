@@ -63,6 +63,7 @@ const AdminDashboard = () => {
             <Route path="posts/tags" element={<AdminPostTags />} />
             <Route path="media" element={<AdminMedia />} />
             <Route path="media/new" element={<AdminMediaNew />} />
+            <Route path="media/edit/:id" element={<AdminMediaEdit />} />
             <Route path="pages" element={<AdminPages />} />
             <Route path="pages/new" element={<AdminPageNew />} />
             <Route path="pages/edit/:id" element={<AdminPageNew />} />
