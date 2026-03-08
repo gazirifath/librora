@@ -121,6 +121,9 @@ const Analytics = () => {
         />
       </div>
 
+      {/* 30-Day Trend Chart */}
+      <TrendChart />
+
       {/* Rankings */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Downloads Ranking */}
