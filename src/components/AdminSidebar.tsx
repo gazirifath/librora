@@ -22,9 +22,9 @@ const menuItems: MenuItem[] = [
   { label: "Daily Reports", icon: FileText, path: "/admin/reports" },
   { label: "Automation", icon: Webhook, path: "/admin/automation" },
   {
-    label: "Posts", icon: FileText, children: [
-      { label: "All Posts", path: "/admin/posts" },
-      { label: "Add Post", path: "/admin/posts/new" },
+    label: "Books", icon: FileText, children: [
+      { label: "All Books", path: "/admin/posts" },
+      { label: "Add Book", path: "/admin/posts/new" },
       { label: "Categories", path: "/admin/posts/categories" },
       { label: "Tags", path: "/admin/posts/tags" },
     ]
