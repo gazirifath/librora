@@ -96,7 +96,7 @@ const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, is
                 Download "{bookTitle}"
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Enter your email to get a free PDF summary and access all books including new releases.
+                Enter your email to get a free PDF download and access all books including new releases.
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,7 +117,7 @@ const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, is
                 disabled={loading}
                 className="w-full rounded-lg gradient-gold py-3 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity disabled:opacity-60"
               >
-                {loading ? "Sending..." : "Get Free PDF Summary"}
+                {loading ? "Sending..." : "Get Free PDF"}
               </button>
             </form>
             <p className="text-[11px] text-muted-foreground text-center mt-4">

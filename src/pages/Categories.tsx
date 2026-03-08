@@ -74,7 +74,7 @@ const Categories = () => {
             Browse by Category
           </h1>
           <p className="text-muted-foreground mb-10 max-w-xl">
-            Explore our curated book summaries organized by topic.
+            Explore our curated collection of free PDF books organized by topic.
           </p>
 
           <div className="relative max-w-md mb-8">

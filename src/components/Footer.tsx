@@ -12,7 +12,7 @@ const Footer = () => {
               <span className="text-lg font-heading font-bold">Librora</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-sm">
-              High-quality book summaries that save you time. Read the key ideas from the world's best books in minutes.
+              Free PDF book downloads that save you time. Access the world's best books and read offline.
             </p>
           </div>
           <div>
