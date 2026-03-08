@@ -9,7 +9,7 @@ export const usePageBySlug = (slug: string) => useQuery({
       .select("*")
       .eq("slug", slug)
       .eq("status", "published")
-      .single();
+      .maybeSingle();
     if (error) throw error;
     return data;
   },
