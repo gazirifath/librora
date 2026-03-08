@@ -133,7 +133,7 @@ const PostNew = () => {
   return (
     <>
       <h1 className="font-heading text-2xl font-bold text-foreground mb-6">
-        {isEdit ? "Edit Post" : "Add New Post"}
+        {isEdit ? "Edit Book" : "Add New Book"}
       </h1>
       <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-6 space-y-4 max-w-3xl">
         <div className="grid md:grid-cols-2 gap-4">

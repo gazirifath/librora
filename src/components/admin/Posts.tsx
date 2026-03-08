@@ -54,7 +54,7 @@ const Posts = () => {
                       <Link to={`/admin/posts/edit/${post.id}`} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
                         <Pencil className="h-3.5 w-3.5" /> Edit
                       </Link>
-                      <button onClick={() => { if (confirm("Delete this post?")) deletePost.mutate(post.id); }} className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors">
+                      <button onClick={() => { if (confirm("Delete this book?")) deletePost.mutate(post.id); }} className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors">
                         <Trash2 className="h-3.5 w-3.5" /> Delete
                       </button>
                     </div>
