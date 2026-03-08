@@ -4,6 +4,7 @@ import { useCategories, useCreatePost, useUpdatePost, usePost } from "@/hooks/us
 import { PlusCircle, Trash2, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import RichTextEditor from "./RichTextEditor";
 
 const PostNew = () => {
   const navigate = useNavigate();
@@ -216,8 +217,7 @@ const PostNew = () => {
 
         <div>
           <label className="text-sm font-medium text-foreground block mb-1">Summary</label>
-          <textarea rows={8} value={summary} onChange={e => setSummary(e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+          <RichTextEditor content={summary} onChange={setSummary} />
         </div>
         <div>
           <label className="text-sm font-medium text-foreground block mb-1">Key Lessons (one per line)</label>
