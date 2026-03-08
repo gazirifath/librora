@@ -5,6 +5,7 @@ import { categoryIcons } from "@/pages/Categories";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
+import NewsletterCTA from "@/components/NewsletterCTA";
 
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
@@ -85,7 +86,7 @@ const CategoryPage = () => {
             </h1>
           </div>
           <p className="text-muted-foreground mb-10">
-            {posts.length} {posts.length === 1 ? "book summary" : "book summaries"} in this category
+            {posts.length} {posts.length === 1 ? "book" : "books"} in this category
           </p>
 
           {posts.length === 0 ? (
@@ -116,6 +117,7 @@ const CategoryPage = () => {
             </div>
           )}
         </section>
+        <NewsletterCTA />
       </main>
       <Footer />
     </div>

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowRight, Download, Flame, Clock, Search } from "lucide-react";
+import NewsletterCTA from "@/components/NewsletterCTA";
 
 const categoryIcons: Record<string, string> = {
   "Self-Help": "🌱",
@@ -135,6 +136,7 @@ const Categories = () => {
             })}
           </div>
         </section>
+        <NewsletterCTA />
       </main>
       <Footer />
     </div>
