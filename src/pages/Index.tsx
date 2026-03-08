@@ -99,13 +99,45 @@ const Index = () => {
             <h2 className="font-heading text-2xl font-bold text-foreground mb-8">Browse Categories</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {categories.map(cat => {
-                const count = books.filter(b => b.category === cat).length;
+                const catBooks = books.filter(b => b.category === cat);
+                const count = catBooks.length;
+                const totalDownloads = catBooks.reduce((sum, b) => sum + b.downloadCount, 0);
+                const allTotals = categories.map(c => books.filter(b => b.category === c).reduce((s, b) => s + b.downloadCount, 0));
+                const maxDl = Math.max(...allTotals, 1);
+                const isTopDownload = totalDownloads === maxDl;
+                const avgDl = count > 0 ? Math.round(totalDownloads / count) : 0;
+                const allAvgs = categories.map(c => { const cb = books.filter(b => b.category === c); return cb.length > 0 ? Math.round(cb.reduce((s, b) => s + b.downloadCount, 0) / cb.length) : 0; });
+                const topAvgs = [...allAvgs].sort((a, b) => b - a).slice(0, 3);
+                const isTrending = count > 0 && topAvgs.includes(avgDl) && !isTopDownload;
+                const hasRecent = catBooks.some(b => {
+                  const d = new Date(b.dateAdded);
+                  const ago = new Date(); ago.setDate(ago.getDate() - 30);
+                  return d >= ago;
+                });
+
                 return (
                   <Link
                     key={cat}
                     to={`/categories/${cat.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="rounded-lg border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book transition-all cursor-pointer"
+                    className="relative rounded-lg border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book transition-all cursor-pointer"
                   >
+                    <div className="flex flex-wrap gap-1 justify-center mb-2">
+                      {isTopDownload && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold">
+                          <Download className="h-2.5 w-2.5" /> Top
+                        </span>
+                      )}
+                      {isTrending && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/80 text-accent-foreground px-1.5 py-0.5 text-[9px] font-semibold">
+                          <Flame className="h-2.5 w-2.5" /> Trending
+                        </span>
+                      )}
+                      {hasRecent && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-secondary text-secondary-foreground px-1.5 py-0.5 text-[9px] font-semibold">
+                          <Clock className="h-2.5 w-2.5" /> New
+                        </span>
+                      )}
+                    </div>
                     <p className="font-heading font-semibold text-foreground">{cat}</p>
                     <p className="text-xs text-muted-foreground mt-1">{count} {count === 1 ? 'book' : 'books'}</p>
                   </Link>
