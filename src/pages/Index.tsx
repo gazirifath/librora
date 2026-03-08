@@ -206,14 +206,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Ad placeholder */}
-        <section className="py-8">
-          <div className="container">
-            <div className="rounded-lg border border-dashed border-border bg-muted p-8 text-center">
-              <p className="text-xs text-muted-foreground">AdSense Placement Area</p>
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />
