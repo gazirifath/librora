@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import BookPage from "./pages/BookPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import Categories from "./pages/Categories";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
@@ -23,6 +24,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:category" element={<Categories />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
