@@ -101,13 +101,14 @@ const Index = () => {
               {categories.map(cat => {
                 const count = books.filter(b => b.category === cat).length;
                 return (
-                  <div
+                  <Link
                     key={cat}
+                    to={`/categories/${cat.toLowerCase().replace(/\s+/g, "-")}`}
                     className="rounded-lg border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book transition-all cursor-pointer"
                   >
                     <p className="font-heading font-semibold text-foreground">{cat}</p>
                     <p className="text-xs text-muted-foreground mt-1">{count} {count === 1 ? 'book' : 'books'}</p>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
