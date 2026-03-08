@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, TrendingUp, BookOpen, ArrowRight, Leaf, Mail, Download, Flame, Clock } from "lucide-react";
+import { Search, TrendingUp, BookOpen, Leaf, Download, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import BookCard, { BookCardPost } from "@/components/BookCard";
