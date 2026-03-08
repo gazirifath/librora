@@ -16,6 +16,7 @@ const SettingsGeneral = () => {
       setTagline(settings.tagline || "");
       setSiteUrl(settings.site_url || "");
       setAdminEmail(settings.admin_email || "");
+      setDailyReportEmail(settings.daily_report_email || "");
     }
   }, [settings]);
 
