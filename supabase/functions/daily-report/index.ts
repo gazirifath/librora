@@ -53,21 +53,52 @@ Deno.serve(async (req) => {
       time: e.created_at,
     }));
 
+    const reportData = {
+      report_date: reportDate,
+      total_emails_today: emails?.length || 0,
+      total_downloads_today: downloads?.length || 0,
+      top_books: topBooks,
+      email_list: emailList,
+    };
+
     // Upsert daily report
     const { error } = await supabase
       .from("daily_reports")
-      .upsert(
-        {
-          report_date: reportDate,
-          total_emails_today: emails?.length || 0,
-          total_downloads_today: downloads?.length || 0,
-          top_books: topBooks,
-          email_list: emailList,
-        },
-        { onConflict: "report_date" }
-      );
+      .upsert(reportData, { onConflict: "report_date" });
 
     if (error) throw error;
+
+    // Send to configured webhooks
+    const { data: settingsData } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "automation_webhooks")
+      .maybeSingle();
+
+    if (settingsData?.value) {
+      try {
+        const webhooks = JSON.parse(settingsData.value);
+        const webhookPayload = {
+          source: "librora-daily-report",
+          ...reportData,
+          generated_at: new Date().toISOString(),
+        };
+
+        const webhookPromises = webhooks
+          .filter((wh: { enabled: boolean; url: string }) => wh.enabled && wh.url)
+          .map((wh: { url: string; name: string }) =>
+            fetch(wh.url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(webhookPayload),
+            }).catch((err) => console.error(`Webhook "${wh.name}" failed:`, err))
+          );
+
+        await Promise.allSettled(webhookPromises);
+      } catch (parseErr) {
+        console.error("Failed to parse webhooks:", parseErr);
+      }
+    }
 
     return new Response(
       JSON.stringify({
