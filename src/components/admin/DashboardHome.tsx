@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePosts } from "@/hooks/useAdminData";
 
 const DashboardHome = () => {
+  const { data: posts } = usePosts();
   const emails = getEmails();
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
