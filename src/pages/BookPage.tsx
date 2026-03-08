@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookCard, { BookCardPost } from "@/components/BookCard";
-import NewsletterCTA from "@/components/NewsletterCTA";
+
 import EmailPopup from "@/components/EmailPopup";
 import { Download, ShoppingCart, Clock, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
 

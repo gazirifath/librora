@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import BookCard, { BookCardPost } from "@/components/BookCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import NewsletterCTA from "@/components/NewsletterCTA";
+
 import { toast } from "sonner";
 
 interface DbPost {

@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import NewsletterCTA from "@/components/NewsletterCTA";
+
 import { BookOpen, Gift, Newspaper, Sparkles, CheckCircle } from "lucide-react";
 
 const benefits = [
