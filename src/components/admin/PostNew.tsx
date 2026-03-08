@@ -73,6 +73,15 @@ const PostNew = () => {
 
     const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
     setCoverUrl(urlData.publicUrl);
+
+    // Save to media library
+    await supabase.from("media").insert({
+      filename: file.name,
+      url: urlData.publicUrl,
+      file_size: file.size,
+      file_type: file.type,
+    });
+
     toast.success("Image uploaded!");
     setUploading(false);
   };
