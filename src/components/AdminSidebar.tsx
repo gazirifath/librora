@@ -5,7 +5,7 @@ import {
   FilePlus, LayoutDashboard, Users, UserPlus, UserCircle,
   Wrench, Upload, Download, Settings, Pencil, BookOpen,
   MessageSquare, ImageIcon, LinkIcon, Shield, LogOut, Leaf,
-  ChevronDown, ChevronRight
+  ChevronDown, ChevronRight, Webhook
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
   { label: "Daily Reports", icon: FileText, path: "/admin/reports" },
+  { label: "Automation", icon: Webhook, path: "/admin/automation" },
   {
     label: "Posts", icon: FileText, children: [
       { label: "All Posts", path: "/admin/posts" },
