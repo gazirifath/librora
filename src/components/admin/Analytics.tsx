@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import TrendChart from "./TrendChart";
 
 interface BookStat {
   id: string;
