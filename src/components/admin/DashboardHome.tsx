@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { getEmails, exportEmailsCSV, books } from "@/data/books";
+import { Link } from "react-router-dom";
 import {
   Mail, Download, TrendingUp, Calendar,
-  FileDown, BarChart3, Trophy, Activity
+  FileDown, BarChart3, Trophy, Activity, Pencil, Eye
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -10,6 +11,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { usePosts } from "@/hooks/useAdminData";
 
 const DashboardHome = () => {
   const emails = getEmails();
