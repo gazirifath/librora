@@ -18,7 +18,7 @@ const Posts = () => {
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground">Loading...</div>
         ) : !posts?.length ? (
-          <div className="p-8 text-center text-muted-foreground">No posts yet. <Link to="/admin/posts/new" className="text-primary hover:underline">Create one</Link></div>
+          <div className="p-8 text-center text-muted-foreground">No books yet. <Link to="/admin/posts/new" className="text-primary hover:underline">Add one</Link></div>
         ) : (
           <table className="w-full text-sm">
             <thead>
