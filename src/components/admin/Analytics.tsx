@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen, FileDown, Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -14,50 +15,53 @@ interface BookStat {
 }
 
 const Analytics = () => {
-  const [books, setBooks] = useState<BookStat[]>([]);
-  const [totalPageViews, setTotalPageViews] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { data: posts } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, title, author, download_count, categories(name)")
+        .order("download_count", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: emailCounts } = useQuery({
+    queryKey: ["collected_emails"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("collected_emails").select("post_id");
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  const fetchData = async () => {
-    try {
-      const [{ data: posts, error: postsErr }, { data: emailCounts, error: emailErr }, { count: viewCount, error: viewErr }] = await Promise.all([
-        supabase
-          .from("posts")
-          .select("id, title, author, download_count, categories(name)")
-          .order("download_count", { ascending: false }),
-        supabase.from("collected_emails").select("post_id"),
-        supabase.from("page_views").select("*", { count: "exact", head: true }),
-      ]);
-      if (postsErr) throw postsErr;
-      if (emailErr) throw emailErr;
-      if (viewErr) throw viewErr;
+  const { data: totalPageViews = 0 } = useQuery({
+    queryKey: ["page_views"],
+    queryFn: async () => {
+      const { count, error } = await supabase.from("page_views").select("*", { count: "exact", head: true });
+      if (error) throw error;
+      return count || 0;
+    },
+  });
 
-      setTotalPageViews(viewCount || 0);
+  const loading = !posts || !emailCounts;
 
-      const emailMap = new Map<string, number>();
-      emailCounts?.forEach((e: any) => {
-        if (e.post_id) emailMap.set(e.post_id, (emailMap.get(e.post_id) || 0) + 1);
-      });
-
-      const stats: BookStat[] = (posts || []).map((p: any) => ({
-        id: p.id,
-        title: p.title,
-        author: p.author,
-        download_count: p.download_count || 0,
-        email_count: emailMap.get(p.id) || 0,
-        category_name: p.categories?.name || null,
-      }));
-
-      setBooks(stats);
-    } catch (err: any) {
-      toast.error(err.message);
-    }
-    setLoading(false);
-  };
+  const books = useMemo<BookStat[]>(() => {
+    if (!posts || !emailCounts) return [];
+    const emailMap = new Map<string, number>();
+    emailCounts.forEach((e: any) => {
+      if (e.post_id) emailMap.set(e.post_id, (emailMap.get(e.post_id) || 0) + 1);
+    });
+    return posts.map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      author: p.author,
+      download_count: p.download_count || 0,
+      email_count: emailMap.get(p.id) || 0,
+      category_name: p.categories?.name || null,
+    }));
+  }, [posts, emailCounts]);
 
   const totalDownloads = books.reduce((s, b) => s + b.download_count, 0);
   const totalEmails = books.reduce((s, b) => s + b.email_count, 0);
