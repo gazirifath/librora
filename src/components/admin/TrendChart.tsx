@@ -13,6 +13,7 @@ interface DayData {
   label: string;
   downloads: number;
   emails: number;
+  pageViews: number;
 }
 
 type Preset = "7d" | "14d" | "30d" | "90d" | "custom";
@@ -54,13 +55,15 @@ const TrendChart = () => {
       endDate.setDate(endDate.getDate() + 1);
       const endStr = formatLocalDate(endDate);
 
-      const [{ data: downloads }, { data: emails }] = await Promise.all([
+      const [{ data: downloads }, { data: emails }, { data: views }] = await Promise.all([
         supabase.from("download_logs").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
         supabase.from("collected_emails").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
+        supabase.from("page_views").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
       ]);
 
       const downloadMap = new Map<string, number>();
       const emailMap = new Map<string, number>();
+      const viewMap = new Map<string, number>();
 
       (downloads || []).forEach((d: any) => {
         const day = d.created_at.split("T")[0];
@@ -69,6 +72,10 @@ const TrendChart = () => {
       (emails || []).forEach((e: any) => {
         const day = e.created_at.split("T")[0];
         emailMap.set(day, (emailMap.get(day) || 0) + 1);
+      });
+      (views || []).forEach((v: any) => {
+        const day = v.created_at.split("T")[0];
+        viewMap.set(day, (viewMap.get(day) || 0) + 1);
       });
 
       const days = eachDayOfInterval({ start, end });
@@ -79,6 +86,7 @@ const TrendChart = () => {
           label: format(day, "MMM d"),
           downloads: downloadMap.get(dateStr) || 0,
           emails: emailMap.get(dateStr) || 0,
+          pageViews: viewMap.get(dateStr) || 0,
         };
       });
 
@@ -91,6 +99,7 @@ const TrendChart = () => {
 
   const totalDownloads = data.reduce((s, d) => s + d.downloads, 0);
   const totalEmails = data.reduce((s, d) => s + d.emails, 0);
+  const totalPageViews = data.reduce((s, d) => s + d.pageViews, 0);
 
   const presets: { key: Preset; label: string }[] = [
     { key: "7d", label: "7 days" },
@@ -110,12 +119,11 @@ const TrendChart = () => {
             </div>
             <div>
               <h2 className="font-heading font-bold text-foreground text-sm">Trends</h2>
-              <p className="text-xs text-muted-foreground">Downloads & emails over time</p>
+              <p className="text-xs text-muted-foreground">Page views, downloads & emails over time</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Preset buttons */}
             <div className="flex rounded-lg border border-border overflow-hidden">
               {presets.map((p) => (
                 <button
@@ -133,7 +141,6 @@ const TrendChart = () => {
               ))}
             </div>
 
-            {/* Custom date pickers */}
             {preset === "custom" && (
               <div className="flex items-center gap-1.5">
                 <Popover>
@@ -176,8 +183,11 @@ const TrendChart = () => {
               </div>
             )}
 
-            {/* Totals */}
             <div className="flex gap-4 ml-auto">
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Views</p>
+                <p className="text-sm font-bold text-foreground tabular-nums">{totalPageViews}</p>
+              </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Downloads</p>
                 <p className="text-sm font-bold text-foreground tabular-nums">{totalDownloads}</p>
@@ -200,6 +210,10 @@ const TrendChart = () => {
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <defs>
+                <linearGradient id="gradPageViews" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(210, 60%, 50%)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(210, 60%, 50%)" stopOpacity={0} />
+                </linearGradient>
                 <linearGradient id="gradDownloads" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(152, 45%, 28%)" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="hsl(152, 45%, 28%)" stopOpacity={0} />
@@ -241,6 +255,16 @@ const TrendChart = () => {
                 formatter={(value: string) => (
                   <span style={{ fontSize: 12, color: "hsl(150, 10%, 45%)" }}>{value}</span>
                 )}
+              />
+              <Area
+                type="monotone"
+                dataKey="pageViews"
+                name="Page Views"
+                stroke="hsl(210, 60%, 50%)"
+                strokeWidth={2}
+                fill="url(#gradPageViews)"
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 2 }}
               />
               <Area
                 type="monotone"
