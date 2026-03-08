@@ -19,13 +19,7 @@ const Header = () => {
           <Link to="/privacy" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Privacy
           </Link>
-          <Link to="/admin" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
-            Admin
-          </Link>
         </nav>
-        <Link to="/admin" className="md:hidden text-sm font-medium text-primary">
-          Admin
-        </Link>
       </div>
     </header>
   );
