@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen } from "lucide-react";
+import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import TrendChart from "./TrendChart";
 
@@ -65,6 +65,26 @@ const Analytics = () => {
   const maxDownloads = Math.max(...byDownloads.map((b) => b.download_count), 1);
   const maxEmails = Math.max(...byEmails.map((b) => b.email_count), 1);
 
+  const exportCSV = () => {
+    const headers = ["Title", "Author", "Category", "Downloads", "Emails"];
+    const rows = byDownloads.map((b) => [
+      `"${b.title.replace(/"/g, '""')}"`,
+      `"${b.author.replace(/"/g, '""')}"`,
+      `"${b.category_name || ""}"`,
+      b.download_count,
+      b.email_count,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported");
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -86,9 +106,18 @@ const Analytics = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="font-heading text-3xl font-bold text-foreground tracking-tight">Analytics</h1>
-        <p className="text-sm text-muted-foreground mt-1">Track your book performance and audience growth</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-foreground tracking-tight">Analytics</h1>
+          <p className="text-sm text-muted-foreground mt-1">Track your book performance and audience growth</p>
+        </div>
+        <button
+          onClick={exportCSV}
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+        >
+          <FileDown className="h-4 w-4" />
+          Export CSV
+        </button>
       </div>
 
       {/* KPI Cards */}
