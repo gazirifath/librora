@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, TrendingUp, BookOpen, ArrowRight, Leaf, Mail } from "lucide-react";
+import { Search, TrendingUp, BookOpen, ArrowRight, Leaf, Mail, Download, Flame, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { books, categories } from "@/data/books";
 import BookCard from "@/components/BookCard";
