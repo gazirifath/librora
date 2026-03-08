@@ -35,24 +35,11 @@ const BookPage = () => {
   useEffect(() => {
     const fetchBook = async () => {
       setLoading(true);
-      
-      // First try without status filter (works for authenticated/admin users)
-      let { data } = await supabase
+      const { data, error } = await supabase
         .from("posts")
         .select("*, categories(name)")
         .eq("slug", slug || "")
         .maybeSingle();
-
-      // If not found (unauthenticated + draft), try published only
-      if (!data) {
-        const res = await supabase
-          .from("posts")
-          .select("*, categories(name)")
-          .eq("slug", slug || "")
-          .eq("status", "published")
-          .maybeSingle();
-        data = res.data;
-      }
 
       setBook(data as any);
 
