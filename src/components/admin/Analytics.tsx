@@ -86,9 +86,18 @@ const Analytics = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="font-heading text-3xl font-bold text-foreground tracking-tight">Analytics</h1>
-        <p className="text-sm text-muted-foreground mt-1">Track your book performance and audience growth</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-foreground tracking-tight">Analytics</h1>
+          <p className="text-sm text-muted-foreground mt-1">Track your book performance and audience growth</p>
+        </div>
+        <button
+          onClick={exportCSV}
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+        >
+          <FileDown className="h-4 w-4" />
+          Export CSV
+        </button>
       </div>
 
       {/* KPI Cards */}
