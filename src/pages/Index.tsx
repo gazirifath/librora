@@ -233,7 +233,7 @@ const Index = () => {
           <div className="container text-center">
             <Mail className="h-8 w-8 text-primary-foreground mx-auto mb-4" />
             <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary-foreground">
-              Get Weekly Free Books
+              Get Weekly PDF Books
             </h2>
             <p className="text-primary-foreground/75 mt-2 max-w-md mx-auto text-sm">
               Join thousands of readers. New PDF books delivered to your inbox every week.
