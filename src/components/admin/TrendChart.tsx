@@ -24,6 +24,13 @@ const TrendChart = () => {
   const [customFrom, setCustomFrom] = useState<Date | undefined>();
   const [customTo, setCustomTo] = useState<Date | undefined>();
 
+  const formatLocalDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const getDateRange = () => {
     const end = new Date();
     if (preset === "custom" && customFrom && customTo) {
@@ -42,12 +49,14 @@ const TrendChart = () => {
     setLoading(true);
     try {
       const { start, end } = getDateRange();
-      const startISO = start.toISOString();
-      const endISO = new Date(end.getTime() + 86400000).toISOString();
+      const startStr = formatLocalDate(start);
+      const endDate = new Date(end);
+      endDate.setDate(endDate.getDate() + 1);
+      const endStr = formatLocalDate(endDate);
 
       const [{ data: downloads }, { data: emails }] = await Promise.all([
-        supabase.from("download_logs").select("created_at").gte("created_at", startISO).lt("created_at", endISO),
-        supabase.from("collected_emails").select("created_at").gte("created_at", startISO).lt("created_at", endISO),
+        supabase.from("download_logs").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
+        supabase.from("collected_emails").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
       ]);
 
       const downloadMap = new Map<string, number>();
