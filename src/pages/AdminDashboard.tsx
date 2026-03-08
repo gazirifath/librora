@@ -62,9 +62,6 @@ const AdminDashboard = () => {
             <Route path="tools/import" element={<AdminToolsImport />} />
             <Route path="tools/export" element={<AdminToolsExport />} />
             <Route path="settings/general" element={<AdminSettingsGeneral />} />
-            <Route path="settings/writing" element={<AdminSettingsWriting />} />
-            <Route path="settings/reading" element={<AdminSettingsReading />} />
-            <Route path="settings/discussion" element={<AdminSettingsDiscussion />} />
             <Route path="settings/media" element={<AdminSettingsMedia />} />
             <Route path="settings/permalinks" element={<AdminSettingsPermalinks />} />
             <Route path="settings/privacy" element={<AdminSettingsPrivacy />} />
