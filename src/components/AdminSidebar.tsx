@@ -20,6 +20,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
   { label: "Daily Reports", icon: FileText, path: "/admin/reports" },
+  { label: "Automation", icon: Webhook, path: "/admin/automation" },
   {
     label: "Posts", icon: FileText, children: [
       { label: "All Posts", path: "/admin/posts" },
