@@ -233,10 +233,10 @@ const Index = () => {
           <div className="container text-center">
             <Mail className="h-8 w-8 text-primary-foreground mx-auto mb-4" />
             <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary-foreground">
-              Get Weekly Book Summaries
+              Get Weekly Free Books
             </h2>
             <p className="text-primary-foreground/75 mt-2 max-w-md mx-auto text-sm">
-              Join thousands of readers. New summaries delivered to your inbox every week.
+              Join thousands of readers. New free PDF books delivered to your inbox every week.
             </p>
             <form onSubmit={handleNewsletter} className="mt-6 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
