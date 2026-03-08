@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { getEmails, exportEmailsCSV, books } from "@/data/books";
 import {
   Mail, Download, TrendingUp, Calendar,
-  FileDown, BarChart3, Trophy
+  FileDown, BarChart3, Trophy, Activity
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line
 } from "recharts";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardHome = () => {
   const emails = getEmails();
