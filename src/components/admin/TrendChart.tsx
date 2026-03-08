@@ -49,8 +49,10 @@ const TrendChart = () => {
     setLoading(true);
     try {
       const { start, end } = getDateRange();
-      const startISO = start.toISOString();
-      const endISO = new Date(end.getTime() + 86400000).toISOString();
+      const startStr = formatLocalDate(start);
+      const endDate = new Date(end);
+      endDate.setDate(endDate.getDate() + 1);
+      const endStr = formatLocalDate(endDate);
 
       const [{ data: downloads }, { data: emails }] = await Promise.all([
         supabase.from("download_logs").select("created_at").gte("created_at", startISO).lt("created_at", endISO),
