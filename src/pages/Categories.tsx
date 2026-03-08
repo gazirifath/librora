@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { categories, books } from "@/data/books";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowRight, TrendingUp, Download, Flame, Clock } from "lucide-react";
+import { ArrowRight, TrendingUp, Download, Flame, Clock, Search } from "lucide-react";
 
 const categoryIcons: Record<string, string> = {
   "Self-Help": "🌱",
