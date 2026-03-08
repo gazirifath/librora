@@ -16,6 +16,7 @@ import DMCA from "./pages/DMCA";
 import AboutUs from "./pages/AboutUs";
 import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
+import Subscribe from "./pages/Subscribe";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/dmca" element={<DMCA />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/subscribe" element={<Subscribe />} />
             <Route path="/:slug" element={<BookPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
