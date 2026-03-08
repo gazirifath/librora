@@ -55,8 +55,8 @@ const TrendChart = () => {
       const endStr = formatLocalDate(endDate);
 
       const [{ data: downloads }, { data: emails }] = await Promise.all([
-        supabase.from("download_logs").select("created_at").gte("created_at", startISO).lt("created_at", endISO),
-        supabase.from("collected_emails").select("created_at").gte("created_at", startISO).lt("created_at", endISO),
+        supabase.from("download_logs").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
+        supabase.from("collected_emails").select("created_at").gte("created_at", startStr).lt("created_at", endStr),
       ]);
 
       const downloadMap = new Map<string, number>();
