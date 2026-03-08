@@ -145,7 +145,7 @@ const BookPage = () => {
                 </span>
               )}
               <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
-                {book.title} — Free PDF Download
+                {book.title} — PDF Download
               </h1>
               <p className="text-muted-foreground mt-1">by {book.author}</p>
               <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
@@ -162,7 +162,7 @@ const BookPage = () => {
                   onClick={() => setShowPopup(true)}
                   className="flex items-center justify-center gap-2 rounded-lg gradient-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity"
                 >
-                  <Download className="h-4 w-4" /> Download Free PDF
+                   <Download className="h-4 w-4" /> Download PDF
                 </button>
                 {book.affiliate_url && (
                   <a
@@ -244,7 +244,7 @@ const BookPage = () => {
           <div className="max-w-3xl">
             <div className="gradient-hero rounded-xl p-8 text-center">
               <h3 className="font-heading text-xl font-bold text-primary-foreground">
-                Get the free PDF download
+                Get the PDF download
               </h3>
               <p className="text-sm text-primary-foreground/75 mt-2">
                 Download and read offline anytime, completely free.
@@ -253,7 +253,7 @@ const BookPage = () => {
                 onClick={() => setShowPopup(true)}
                 className="mt-4 inline-flex items-center gap-2 rounded-lg gradient-gold px-6 py-3 text-sm font-semibold text-accent-foreground shadow-gold hover:opacity-90 transition-opacity"
               >
-                <Download className="h-4 w-4" /> Download Free PDF
+                <Download className="h-4 w-4" /> Download PDF
               </button>
             </div>
           </div>
