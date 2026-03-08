@@ -33,6 +33,7 @@ import AdminNewsletter from "@/components/admin/NewsletterSubscribers";
 
 const AdminDashboard = () => {
   const { user, loading } = useAuth();
+  useRealtimeSync();
 
   if (loading) {
     return (
