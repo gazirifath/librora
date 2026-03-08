@@ -213,14 +213,16 @@ const KPICard = ({
   color: "primary" | "accent";
   suffix?: string;
 }) => (
-  <div className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow">
-    <div className={`inline-flex items-center justify-center h-10 w-10 rounded-lg mb-3 ${
-      color === "primary" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
-    }`}>
-      {icon}
+  <div className="rounded-xl border border-border bg-card px-4 py-3 hover:shadow-md transition-shadow">
+    <div className="flex items-center gap-2.5 mb-1.5">
+      <div className={`inline-flex items-center justify-center h-8 w-8 rounded-lg ${
+        color === "primary" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
+      }`}>
+        {icon}
+      </div>
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
     </div>
-    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
-    <p className="text-3xl font-heading font-bold text-foreground mt-1 tracking-tight">{value}</p>
+    <p className="text-2xl font-heading font-bold text-foreground tracking-tight">{value}</p>
     {suffix && <p className="text-xs text-muted-foreground mt-1">{suffix}</p>}
   </div>
 );
