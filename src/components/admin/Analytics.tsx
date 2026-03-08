@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen, FileDown } from "lucide-react";
+import { BarChart3, Mail, Download, Trophy, TrendingUp, BookOpen, FileDown, Eye } from "lucide-react";
 import { toast } from "sonner";
 import TrendChart from "./TrendChart";
 
@@ -15,6 +15,7 @@ interface BookStat {
 
 const Analytics = () => {
   const [books, setBooks] = useState<BookStat[]>([]);
+  const [totalPageViews, setTotalPageViews] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,16 +24,19 @@ const Analytics = () => {
 
   const fetchData = async () => {
     try {
-      const { data: posts, error: postsErr } = await supabase
-        .from("posts")
-        .select("id, title, author, download_count, categories(name)")
-        .order("download_count", { ascending: false });
+      const [{ data: posts, error: postsErr }, { data: emailCounts, error: emailErr }, { count: viewCount, error: viewErr }] = await Promise.all([
+        supabase
+          .from("posts")
+          .select("id, title, author, download_count, categories(name)")
+          .order("download_count", { ascending: false }),
+        supabase.from("collected_emails").select("post_id"),
+        supabase.from("page_views").select("*", { count: "exact", head: true }),
+      ]);
       if (postsErr) throw postsErr;
-
-      const { data: emailCounts, error: emailErr } = await supabase
-        .from("collected_emails")
-        .select("post_id");
       if (emailErr) throw emailErr;
+      if (viewErr) throw viewErr;
+
+      setTotalPageViews(viewCount || 0);
 
       const emailMap = new Map<string, number>();
       emailCounts?.forEach((e: any) => {
@@ -65,7 +69,7 @@ const Analytics = () => {
   const maxDownloads = Math.max(...byDownloads.map((b) => b.download_count), 1);
   const maxEmails = Math.max(...byEmails.map((b) => b.email_count), 1);
 
-  const exportCSV = () => {
+  const exportAllCSV = () => {
     const headers = ["Title", "Author", "Category", "Downloads", "Emails"];
     const rows = byDownloads.map((b) => [
       `"${b.title.replace(/"/g, '""')}"`,
@@ -74,12 +78,40 @@ const Analytics = () => {
       b.download_count,
       b.email_count,
     ]);
+    downloadCSV(headers, rows, "analytics-all");
+  };
+
+  const exportDownloadsCSV = () => {
+    const headers = ["Rank", "Title", "Author", "Category", "Downloads"];
+    const rows = byDownloads.slice(0, 10).map((b, i) => [
+      i + 1,
+      `"${b.title.replace(/"/g, '""')}"`,
+      `"${b.author.replace(/"/g, '""')}"`,
+      `"${b.category_name || ""}"`,
+      b.download_count,
+    ]);
+    downloadCSV(headers, rows, "top-downloads");
+  };
+
+  const exportEmailsCSV = () => {
+    const headers = ["Rank", "Title", "Author", "Category", "Emails"];
+    const rows = byEmails.slice(0, 10).map((b, i) => [
+      i + 1,
+      `"${b.title.replace(/"/g, '""')}"`,
+      `"${b.author.replace(/"/g, '""')}"`,
+      `"${b.category_name || ""}"`,
+      b.email_count,
+    ]);
+    downloadCSV(headers, rows, "top-emails");
+  };
+
+  const downloadCSV = (headers: string[], rows: (string | number)[][], filename: string) => {
     const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `analytics-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `${filename}-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("CSV exported");
@@ -89,8 +121,8 @@ const Analytics = () => {
     return (
       <div className="space-y-6">
         <div className="h-8 w-48 bg-muted rounded-md animate-pulse" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
             <div key={i} className="h-28 bg-muted rounded-xl animate-pulse" />
           ))}
         </div>
@@ -112,16 +144,22 @@ const Analytics = () => {
           <p className="text-sm text-muted-foreground mt-1">Track your book performance and audience growth</p>
         </div>
         <button
-          onClick={exportCSV}
+          onClick={exportAllCSV}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
         >
           <FileDown className="h-4 w-4" />
-          Export CSV
+          Export All CSV
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <KPICard
+          icon={<Eye className="h-5 w-5" />}
+          label="Page Views"
+          value={totalPageViews}
+          color="accent"
+        />
         <KPICard
           icon={<BookOpen className="h-5 w-5" />}
           label="Total Books"
@@ -150,7 +188,7 @@ const Analytics = () => {
         />
       </div>
 
-      {/* 30-Day Trend Chart */}
+      {/* Trend Chart */}
       <TrendChart />
 
       {/* Rankings */}
@@ -158,14 +196,23 @@ const Analytics = () => {
         {/* Downloads Ranking */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-6 py-4 border-b border-border bg-muted/30">
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10">
-                <Download className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10">
+                  <Download className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-heading font-bold text-foreground text-sm">Top by Downloads</h2>
+                  <p className="text-xs text-muted-foreground">{byDownloads.length} books tracked</p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-heading font-bold text-foreground text-sm">Top by Downloads</h2>
-                <p className="text-xs text-muted-foreground">{byDownloads.length} books tracked</p>
-              </div>
+              <button
+                onClick={exportDownloadsCSV}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <FileDown className="h-3.5 w-3.5" />
+                CSV
+              </button>
             </div>
           </div>
           <div className="divide-y divide-border">
@@ -193,14 +240,23 @@ const Analytics = () => {
         {/* Emails Ranking */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-6 py-4 border-b border-border bg-muted/30">
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-accent/10">
-                <Mail className="h-4 w-4 text-accent" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-accent/10">
+                  <Mail className="h-4 w-4 text-accent" />
+                </div>
+                <div>
+                  <h2 className="font-heading font-bold text-foreground text-sm">Top by Emails</h2>
+                  <p className="text-xs text-muted-foreground">{byEmails.length} books tracked</p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-heading font-bold text-foreground text-sm">Top by Emails</h2>
-                <p className="text-xs text-muted-foreground">{byEmails.length} books tracked</p>
-              </div>
+              <button
+                onClick={exportEmailsCSV}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <FileDown className="h-3.5 w-3.5" />
+                CSV
+              </button>
             </div>
           </div>
           <div className="divide-y divide-border">
