@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCreatePage, useUpdatePage } from "@/hooks/useAdminData";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import RichTextEditor from "./RichTextEditor";
 
 const PageNew = () => {
   const navigate = useNavigate();
