@@ -22,7 +22,7 @@ const SettingsGeneral = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings.mutate({ site_title: siteTitle, tagline, site_url: siteUrl, admin_email: adminEmail });
+    updateSettings.mutate({ site_title: siteTitle, tagline, site_url: siteUrl, admin_email: adminEmail, daily_report_email: dailyReportEmail });
   };
 
   if (isLoading) return <div className="text-muted-foreground">Loading...</div>;
