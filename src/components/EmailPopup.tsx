@@ -45,10 +45,10 @@ const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, is
 
       // Increment download count
       if (postId) {
-        await supabase.rpc("increment_download_count" as any, { post_id: postId }).catch(() => {
-          // If RPC doesn't exist, do manual update
-          supabase.from("posts").update({ download_count: undefined }).eq("id", postId);
-        });
+        const { data: post } = await supabase.from("posts").select("download_count").eq("id", postId).maybeSingle();
+        if (post) {
+          await supabase.from("posts").update({ download_count: (post.download_count || 0) + 1 }).eq("id", postId);
+        }
       }
 
       toast.success("Download link sent to your email!");
