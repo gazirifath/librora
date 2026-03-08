@@ -8,6 +8,7 @@ const SettingsGeneral = () => {
   const [tagline, setTagline] = useState("");
   const [siteUrl, setSiteUrl] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
+  const [dailyReportEmail, setDailyReportEmail] = useState("");
 
   useEffect(() => {
     if (settings) {
