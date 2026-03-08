@@ -1,9 +1,11 @@
+import { useAuth } from "@/hooks/useAuth";
+import AdminLogin from "./AdminLogin";
 import { useState, useMemo } from "react";
 import { getEmails, exportEmailsCSV, books } from "@/data/books";
 import Header from "@/components/Header";
 import {
   Mail, Download, TrendingUp, Calendar,
-  FileDown, BarChart3, ArrowLeft
+  FileDown, BarChart3, ArrowLeft, LogOut
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -12,6 +14,24 @@ import {
 import { toast } from "sonner";
 
 const AdminDashboard = () => {
+  const { user, loading, signOut } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AdminLogin />;
+  }
+
+  return <DashboardContent onSignOut={signOut} userEmail={user.email} />;
+};
+
+const DashboardContent = ({ onSignOut, userEmail }: { onSignOut: () => void; userEmail?: string }) => {
   const emails = getEmails();
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -26,16 +46,12 @@ const AdminDashboard = () => {
   const weekStr = weekAgo.toISOString().split("T")[0];
   const thisWeekEmails = emails.filter(e => e.date >= weekStr);
 
-  // Chart data: emails by book
   const chartData = useMemo(() => {
     const map: Record<string, number> = {};
-    emails.forEach(e => {
-      map[e.bookTitle] = (map[e.bookTitle] || 0) + 1;
-    });
+    emails.forEach(e => { map[e.bookTitle] = (map[e.bookTitle] || 0) + 1; });
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [emails]);
 
-  // Filtered emails for export
   const filteredEmails = useMemo(() => {
     return emails.filter(e => {
       if (dateFrom && e.date < dateFrom) return false;
@@ -65,9 +81,20 @@ const AdminDashboard = () => {
       <Header />
       <main className="flex-1">
         <div className="container py-8">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ArrowLeft className="h-4 w-4" /> Back to site
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" /> Back to site
+            </Link>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">{userEmail}</span>
+              <button
+                onClick={onSignOut}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Sign Out
+              </button>
+            </div>
+          </div>
           <h1 className="font-heading text-3xl font-bold text-foreground mb-8">Admin Dashboard</h1>
 
           {/* Stats */}
@@ -116,55 +143,35 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">From</label>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={e => setDateFrom(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                />
+                <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">To</label>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={e => setDateTo(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                />
+                <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Book</label>
-                <select
-                  value={filterBook}
-                  onChange={e => setFilterBook(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
+                <select value={filterBook} onChange={e => setFilterBook(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="">All</option>
-                  {books.map(b => (
-                    <option key={b.slug} value={b.slug}>{b.title}</option>
-                  ))}
+                  {books.map(b => <option key={b.slug} value={b.slug}>{b.title}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Category</label>
-                <select
-                  value={filterCategory}
-                  onChange={e => setFilterCategory(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
+                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="">All</option>
-                  {categories.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">{filteredEmails.length} emails match</span>
-              <button
-                onClick={handleExport}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
+              <button onClick={handleExport}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
                 <FileDown className="h-4 w-4" /> Export CSV
               </button>
             </div>
