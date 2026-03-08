@@ -5,7 +5,7 @@ import {
   FilePlus, LayoutDashboard, Users, UserPlus, UserCircle,
   Wrench, Upload, Download, Settings, Pencil, BookOpen,
   MessageSquare, ImageIcon, LinkIcon, Shield, LogOut, Leaf,
-  ChevronDown, ChevronRight, Webhook, BarChart3
+  ChevronDown, ChevronRight, Webhook, BarChart3, Mail
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ const menuItems: MenuItem[] = [
   { label: "Reports", icon: FileText, path: "/admin/reports" },
   { label: "Analytics", icon: BarChart3, path: "/admin/analytics" },
   { label: "Automation", icon: Webhook, path: "/admin/automation" },
+  { label: "Newsletter", icon: Mail, path: "/admin/newsletter" },
   {
     label: "Books", icon: FileText, children: [
       { label: "All Books", path: "/admin/posts" },
