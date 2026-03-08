@@ -15,6 +15,8 @@ const categoryIcons: Record<string, string> = {
   Leadership: "🎯",
   Health: "❤️",
   Philosophy: "📜",
+  "Health & Wellness": "🧘",
+  "Science & Technology": "🔬",
 };
 
 export { categoryIcons };
