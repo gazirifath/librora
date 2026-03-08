@@ -1,6 +1,6 @@
 import { usePages, useDeletePage, useUpdatePage } from "@/hooks/useAdminData";
 import { Link } from "react-router-dom";
-import { PlusCircle, Pencil, Trash2 } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 const Pages = () => {
   const { data: pages, isLoading } = usePages();
