@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import usePageViewTracker from "@/hooks/usePageViewTracker";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import BookPage from "./pages/BookPage";
@@ -20,6 +21,11 @@ import Subscribe from "./pages/Subscribe";
 
 const queryClient = new QueryClient();
 
+const PageViewTracker = () => {
+  usePageViewTracker();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -27,6 +33,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+          <PageViewTracker />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
