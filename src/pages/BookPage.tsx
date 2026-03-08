@@ -108,12 +108,6 @@ const BookPage = () => {
           </div>
         </section>
 
-        {/* Ad */}
-        <div className="container pb-6">
-          <div className="rounded-lg border border-dashed border-border bg-muted p-6 text-center">
-            <p className="text-xs text-muted-foreground">AdSense Placement</p>
-          </div>
-        </div>
 
         {/* Summary */}
         <section className="container pb-12">
