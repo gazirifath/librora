@@ -96,7 +96,7 @@ const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, is
                 Download "{bookTitle}"
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Enter your email to receive the PDF summary for free.
+                Enter your email to get a free PDF summary and access all books including new releases.
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
