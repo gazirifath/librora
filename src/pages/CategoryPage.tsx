@@ -86,7 +86,7 @@ const CategoryPage = () => {
             </h1>
           </div>
           <p className="text-muted-foreground mb-10">
-            {posts.length} {posts.length === 1 ? "book summary" : "book summaries"} in this category
+            {posts.length} {posts.length === 1 ? "book" : "books"} in this category
           </p>
 
           {posts.length === 0 ? (
