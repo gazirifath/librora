@@ -39,7 +39,6 @@ const BookPage = () => {
         .from("posts")
         .select("*, categories(name)")
         .eq("slug", slug || "")
-        .eq("status", "published")
         .maybeSingle();
 
       setBook(data as any);
