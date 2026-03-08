@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { getEmails, exportEmailsCSV, books } from "@/data/books";
 import {
   Mail, Download, TrendingUp, Calendar,
-  FileDown, BarChart3, Trophy
+  FileDown, BarChart3, Trophy, Activity
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line
 } from "recharts";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardHome = () => {
   const emails = getEmails();
@@ -41,6 +43,49 @@ const DashboardHome = () => {
       .sort((a, b) => b.count - a.count);
   }, [emails]);
 
+  const [dailyDownloads, setDailyDownloads] = useState<{ date: string; count: number }[]>([]);
+  const [todayDownloads, setTodayDownloads] = useState(0);
+
+  useEffect(() => {
+    const fetchDownloads = async () => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const { data } = await supabase
+        .from("download_logs")
+        .select("created_at")
+        .gte("created_at", thirtyDaysAgo.toISOString())
+        .order("created_at", { ascending: true });
+
+      if (data) {
+        const map: Record<string, number> = {};
+        const todayStr = new Date().toISOString().split("T")[0];
+        let todayCount = 0;
+        data.forEach((d) => {
+          const day = d.created_at.split("T")[0];
+          map[day] = (map[day] || 0) + 1;
+          if (day === todayStr) todayCount++;
+        });
+        setTodayDownloads(todayCount);
+        setDailyDownloads(
+          Object.entries(map).map(([date, count]) => ({
+            date: new Date(date).toLocaleDateString("en", { month: "short", day: "numeric" }),
+            count,
+          }))
+        );
+      }
+    };
+    fetchDownloads();
+
+    const channel = supabase
+      .channel("download_logs_realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "download_logs" }, () => {
+        fetchDownloads();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   const filteredEmails = useMemo(() => {
     return emails.filter(e => {
       if (dateFrom && e.date < dateFrom) return false;
@@ -72,10 +117,11 @@ const DashboardHome = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Total Emails", value: emails.length, icon: Mail },
-          { label: "Today", value: todayEmails.length, icon: Calendar },
+          { label: "Today Emails", value: todayEmails.length, icon: Calendar },
           { label: "This Week", value: thisWeekEmails.length, icon: TrendingUp },
           { label: "This Month", value: thisMonthEmails.length, icon: Mail },
-          { label: "Downloads", value: books.reduce((s, b) => s + b.downloadCount, 0).toLocaleString(), icon: Download },
+          { label: "Today Downloads", value: todayDownloads, icon: Activity },
+          { label: "Total Downloads", value: books.reduce((s, b) => s + b.downloadCount, 0).toLocaleString(), icon: Download },
         ].map(stat => (
           <div key={stat.label} className="rounded-lg border border-border bg-card p-4">
             <div className="flex items-center gap-2 mb-1">
@@ -85,6 +131,30 @@ const DashboardHome = () => {
             <p className="text-xl font-heading font-bold text-foreground">{stat.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-5 mb-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Activity className="h-4 w-4 text-primary" />
+          <h2 className="font-heading font-bold text-foreground">Daily Downloads (Last 30 Days)</h2>
+        </div>
+        <div className="h-56">
+          {dailyDownloads.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dailyDownloads}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(150, 15%, 88%)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="count" stroke="hsl(152, 45%, 28%)" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+              No download data yet. Downloads will appear here in real-time.
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-card p-5 mb-8">
