@@ -35,7 +35,7 @@ const BookPage = () => {
   useEffect(() => {
     const fetchBook = async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("posts")
         .select("*, categories(name)")
         .eq("slug", slug || "")
