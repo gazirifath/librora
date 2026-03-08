@@ -13,6 +13,7 @@ const MediaNew = () => {
   const handleUpload = async (files: FileList | null) => {
     if (!files?.length) return;
     setUploading(true);
+    let lastId: string | undefined;
     try {
       for (const file of Array.from(files)) {
         const filename = `${Date.now()}-${file.name}`;
