@@ -29,7 +29,6 @@ interface DbCategory {
 
 const Index = () => {
   const [search, setSearch] = useState("");
-  const [newsletterEmail, setNewsletterEmail] = useState("");
   const [posts, setPosts] = useState<DbPost[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [loading, setLoading] = useState(true);
