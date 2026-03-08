@@ -4,6 +4,7 @@ import { useCategories, useCreatePost, useUpdatePost, usePost } from "@/hooks/us
 import { PlusCircle, Trash2, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import RichTextEditor from "./RichTextEditor";
 
 const PostNew = () => {
   const navigate = useNavigate();
