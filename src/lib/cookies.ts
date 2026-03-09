@@ -7,10 +7,15 @@ export const setCookie = (name: string, value: string, days = 365) => {
 };
 
 export const getCookie = (name: string): string | null => {
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${COOKIE_PREFIX}${name}=([^;]*)`)
-  );
-  return match ? decodeURIComponent(match[1]) : null;
+  const fullName = `${COOKIE_PREFIX}${name}=`;
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    cookie = cookie.trim();
+    if (cookie.startsWith(fullName)) {
+      return decodeURIComponent(cookie.substring(fullName.length));
+    }
+  }
+  return null;
 };
 
 export const removeCookie = (name: string) => {
