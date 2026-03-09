@@ -164,6 +164,7 @@ const Index = () => {
                     to={`/categories/${cat.slug}`}
                     className="relative rounded-lg border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book transition-all cursor-pointer"
                   >
+                    <span className="text-2xl mb-2 block">{categoryIcons[cat.name] || "📚"}</span>
                     <div className="flex flex-wrap gap-1 justify-center mb-2">
                       {isTop && (
                         <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold">
