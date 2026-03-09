@@ -52,7 +52,11 @@ const Header = () => {
         <div className="flex items-center gap-2">
           {/* Dark mode toggle */}
           <button
-            onClick={() => setDark(d => !d)}
+            onClick={() => {
+              document.documentElement.classList.add("theme-transition");
+              setDark(d => !d);
+              setTimeout(() => document.documentElement.classList.remove("theme-transition"), 350);
+            }}
             className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             aria-label="Toggle dark mode"
           >
