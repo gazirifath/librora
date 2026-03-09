@@ -36,7 +36,7 @@ const CookieConsent = () => {
               Accept
             </button>
             <button
-              onClick={() => setShow(false)}
+              onClick={accept}
               className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Dismiss"
             >
