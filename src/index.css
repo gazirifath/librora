@@ -98,12 +98,23 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground font-body antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+  }
+
+  /* Better image rendering */
+  img {
+    content-visibility: auto;
   }
 }
 
@@ -150,4 +161,10 @@
   .shadow-gold {
     box-shadow: 0 4px 20px -4px hsl(var(--gold) / 0.4);
   }
+}
+
+/* Shimmer animation for skeletons */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
