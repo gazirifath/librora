@@ -109,7 +109,7 @@ const Categories = () => {
                       </span>
                     )}
                     {isTrending && !isTopDownload && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/80 text-accent-foreground px-2 py-0.5 text-[10px] font-semibold">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/80 text-foreground px-2 py-0.5 text-[10px] font-semibold">
                         <Flame className="h-2.5 w-2.5" /> Trending
                       </span>
                     )}

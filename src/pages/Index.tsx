@@ -225,7 +225,7 @@ const Index = () => {
                           </span>
                         )}
                         {hasRecent && (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/15 text-accent-foreground px-1.5 py-0.5 text-[9px] font-semibold">
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/15 text-foreground px-1.5 py-0.5 text-[9px] font-semibold">
                             <Clock className="h-2.5 w-2.5" /> New
                           </span>
                         )}
