@@ -61,6 +61,14 @@ const Footer = () => {
               <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms & Conditions</Link></li>
               <li><Link to="/affiliate-disclosure" className="hover:text-foreground transition-colors">Affiliate Disclosure</Link></li>
               <li><Link to="/dmca" className="hover:text-foreground transition-colors">DMCA</Link></li>
+              <li>
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-cookie-preferences"))}
+                  className="hover:text-foreground transition-colors text-left"
+                >
+                  Manage Cookies
+                </button>
+              </li>
             </ul>
           </div>
         </div>
