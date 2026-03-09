@@ -1,11 +1,22 @@
 import { Link } from "react-router-dom";
-import { Leaf, Facebook, Instagram, Linkedin, Menu, X } from "lucide-react";
+import { Leaf, Facebook, Instagram, Linkedin, Menu, X, Sun, Moon } from "lucide-react";
 import { useSettings } from "@/hooks/useAdminData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getCookie, setCookie } from "@/lib/cookies";
 
 const Header = () => {
   const { data: settings } = useSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dark, setDark] = useState(() => {
+    const saved = getCookie("theme");
+    if (saved) return saved === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+    setCookie("theme", dark ? "dark" : "light", 365);
+  }, [dark]);
 
   const socialLinks = [
     { key: "social_facebook", icon: Facebook, label: "Facebook" },
@@ -38,14 +49,23 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Dark mode toggle */}
+          <button
+            onClick={() => setDark(d => !d)}
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
           {/* Social icons – desktop */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
             {socialLinks.map(({ key, icon: Icon, label }) => {
               const url = settings?.[key];
               if (!url) return null;
               return (
-                <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="text-muted-foreground hover:text-foreground transition-colors">
+                <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
                   <Icon className="h-4 w-4" />
                 </a>
               );
@@ -65,7 +85,7 @@ const Header = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden border-t border-border bg-background animate-slide-down">
           <nav className="container py-4 flex flex-col gap-3">
             {navLinks.map((link) => (
               <Link
