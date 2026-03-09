@@ -6,9 +6,10 @@ import BookCard, { BookCardPost } from "@/components/BookCard";
 import AllBooksSection from "@/components/AllBooksSection";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AnimatedSection from "@/components/AnimatedSection";
+import { BookGridSkeleton, CategorySkeleton } from "@/components/Skeletons";
 import { categoryIcons } from "@/pages/Categories";
-
-import { toast } from "sonner";
+import { addSearchHistory, getSearchHistory } from "@/lib/cookies";
 
 interface DbPost {
   id: string;
@@ -34,6 +35,7 @@ const Index = () => {
   const [posts, setPosts] = useState<DbPost[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchHistory] = useState(getSearchHistory);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,15 +75,17 @@ const Index = () => {
     );
   }, [search, posts]);
 
+  const handleSearchSelect = (slug: string) => {
+    if (search.trim()) addSearchHistory(search.trim());
+    setSearch("");
+  };
+
   const popularBooks = useMemo(
     () => [...posts].sort((a, b) => (b.download_count || 0) - (a.download_count || 0)).slice(0, 8),
     [posts]
   );
 
-  const recentBooks = useMemo(
-    () => [...posts].slice(0, 8),
-    [posts]
-  );
+  const recentBooks = useMemo(() => [...posts].slice(0, 8), [posts]);
 
   const catStats = useMemo(() => {
     return categories.map(cat => {
@@ -98,13 +102,22 @@ const Index = () => {
 
   const maxDl = Math.max(...catStats.map(c => c.totalDl), 1);
 
+  const totalBooks = posts.length;
+  const totalDownloads = posts.reduce((s, p) => s + (p.download_count || 0), 0);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
       {/* Hero */}
-      <section className="gradient-hero py-20 md:py-28">
-        <div className="container text-center">
+      <section className="gradient-hero py-20 md:py-28 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-primary-foreground/5" />
+          <div className="absolute -bottom-10 -left-10 w-60 h-60 rounded-full bg-primary-foreground/5" />
+        </div>
+
+        <div className="container text-center relative z-10">
           <div className="animate-fade-in">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 px-4 py-1.5 mb-6">
               <Leaf className="h-4 w-4 text-primary-foreground" />
@@ -118,6 +131,26 @@ const Index = () => {
             </p>
           </div>
 
+          {/* Stats */}
+          {!loading && (
+            <div className="flex items-center justify-center gap-8 mt-6 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary-foreground">{totalBooks.toLocaleString()}+</p>
+                <p className="text-xs text-primary-foreground/60">Books</p>
+              </div>
+              <div className="w-px h-8 bg-primary-foreground/20" />
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary-foreground">{totalDownloads.toLocaleString()}+</p>
+                <p className="text-xs text-primary-foreground/60">Downloads</p>
+              </div>
+              <div className="w-px h-8 bg-primary-foreground/20" />
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary-foreground">{categories.length}</p>
+                <p className="text-xs text-primary-foreground/60">Categories</p>
+              </div>
+            </div>
+          )}
+
           {/* Search */}
           <div className="relative mt-8 max-w-lg mx-auto animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -126,23 +159,38 @@ const Index = () => {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search books, authors..."
-              className="w-full rounded-xl bg-background pl-12 pr-4 py-4 text-sm text-foreground shadow-book placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full rounded-xl bg-background pl-12 pr-4 py-4 text-sm text-foreground shadow-book placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
             />
+            {/* Search results dropdown */}
             {filteredBooks.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-background shadow-book overflow-hidden z-10">
-                {filteredBooks.map(post => (
+              <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-background shadow-book overflow-hidden z-10 animate-scale-in">
+                {filteredBooks.slice(0, 6).map(post => (
                   <Link
                     key={post.id}
                     to={`/${post.slug}`}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors"
-                    onClick={() => setSearch("")}
+                    onClick={() => handleSearchSelect(post.slug)}
                   >
-                    <BookOpen className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{post.title}</p>
+                    <BookOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{post.title}</p>
                       <p className="text-xs text-muted-foreground">{post.author}</p>
                     </div>
                   </Link>
+                ))}
+              </div>
+            )}
+            {/* Search history hints */}
+            {!search && searchHistory.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3 justify-center">
+                {searchHistory.map(q => (
+                  <button
+                    key={q}
+                    onClick={() => setSearch(q)}
+                    className="text-xs bg-primary-foreground/10 text-primary-foreground/70 px-3 py-1 rounded-full hover:bg-primary-foreground/20 transition-colors"
+                  >
+                    {q}
+                  </button>
                 ))}
               </div>
             )}
@@ -152,43 +200,59 @@ const Index = () => {
 
       <main className="flex-1">
         {/* Categories */}
-        <section className="py-16">
+        <AnimatedSection className="py-16">
           <div className="container">
             <h2 className="font-heading text-2xl font-bold text-foreground mb-8">Browse Categories</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {catStats.map(({ cat, count, totalDl, hasRecent }) => {
-                const isTop = totalDl === maxDl && totalDl > 0;
-                return (
-                  <Link
-                    key={cat.id}
-                    to={`/categories/${cat.slug}`}
-                    className="relative rounded-lg border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book transition-all cursor-pointer"
-                  >
-                    <span className="text-2xl mb-2 block">{categoryIcons[cat.name] || "📚"}</span>
-                    <div className="flex flex-wrap gap-1 justify-center mb-2">
-                      {isTop && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold">
-                          <Download className="h-2.5 w-2.5" /> Top
-                        </span>
-                      )}
-                      {hasRecent && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-secondary text-secondary-foreground px-1.5 py-0.5 text-[9px] font-semibold">
-                          <Clock className="h-2.5 w-2.5" /> New
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-heading font-semibold text-foreground">{cat.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{count} {count === 1 ? 'book' : 'books'}</p>
-                  </Link>
-                );
-              })}
-            </div>
+            {loading ? (
+              <CategorySkeleton />
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {catStats.map(({ cat, count, totalDl, hasRecent }) => {
+                  const isTop = totalDl === maxDl && totalDl > 0;
+                  return (
+                    <Link
+                      key={cat.id}
+                      to={`/categories/${cat.slug}`}
+                      className="relative rounded-xl border border-border bg-card p-4 text-center hover:border-primary/40 hover:shadow-book hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                    >
+                      <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform duration-300">
+                        {categoryIcons[cat.name] || "📚"}
+                      </span>
+                      <div className="flex flex-wrap gap-1 justify-center mb-2">
+                        {isTop && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold">
+                            <Download className="h-2.5 w-2.5" /> Top
+                          </span>
+                        )}
+                        {hasRecent && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/15 text-accent-foreground px-1.5 py-0.5 text-[9px] font-semibold">
+                            <Clock className="h-2.5 w-2.5" /> New
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-heading font-semibold text-foreground">{cat.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{count} {count === 1 ? 'book' : 'books'}</p>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </section>
+        </AnimatedSection>
 
         {/* Popular */}
-        {popularBooks.length > 0 && (
+        {loading ? (
           <section className="py-16 bg-card">
+            <div className="container">
+              <div className="flex items-center gap-2 mb-8">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <h2 className="font-heading text-2xl font-bold text-foreground">Most Popular</h2>
+              </div>
+              <BookGridSkeleton />
+            </div>
+          </section>
+        ) : popularBooks.length > 0 && (
+          <AnimatedSection className="py-16 bg-card">
             <div className="container">
               <div className="flex items-center gap-2 mb-8">
                 <TrendingUp className="h-5 w-5 text-primary" />
@@ -200,12 +264,19 @@ const Index = () => {
                 ))}
               </div>
             </div>
-          </section>
+          </AnimatedSection>
         )}
 
         {/* Recent */}
-        {recentBooks.length > 0 && (
+        {loading ? (
           <section className="py-16">
+            <div className="container">
+              <h2 className="font-heading text-2xl font-bold text-foreground mb-8">Recently Added</h2>
+              <BookGridSkeleton />
+            </div>
+          </section>
+        ) : recentBooks.length > 0 && (
+          <AnimatedSection className="py-16">
             <div className="container">
               <h2 className="font-heading text-2xl font-bold text-foreground mb-8">Recently Added</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -214,14 +285,14 @@ const Index = () => {
                 ))}
               </div>
             </div>
-          </section>
+          </AnimatedSection>
         )}
 
         {/* All Books paginated */}
-        {!loading && posts.length > 0 && <AllBooksSection posts={posts} />}
-
-        {loading && (
-          <div className="py-16 text-center text-muted-foreground">Loading books...</div>
+        {!loading && posts.length > 0 && (
+          <AnimatedSection>
+            <AllBooksSection posts={posts} />
+          </AnimatedSection>
         )}
 
         {/* Ad space */}
