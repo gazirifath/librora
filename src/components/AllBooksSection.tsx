@@ -34,12 +34,30 @@ const toBookCard = (p: DbPost): BookCardPost => ({
 
 const AllBooksSection = ({ posts, booksPerPage = 12 }: AllBooksSectionProps) => {
   const [page, setPage] = useState(1);
+  const [activeCategory, setActiveCategory] = useState<string>("All");
 
-  const totalPages = Math.ceil(posts.length / booksPerPage);
+  const categories = useMemo(() => {
+    const names = posts
+      .map(p => p.categories?.name)
+      .filter((n): n is string => Boolean(n));
+    return ["All", ...Array.from(new Set(names)).sort()];
+  }, [posts]);
+
+  const filteredPosts = useMemo(() => {
+    if (activeCategory === "All") return posts;
+    return posts.filter(p => p.categories?.name === activeCategory);
+  }, [posts, activeCategory]);
+
+  const totalPages = Math.ceil(filteredPosts.length / booksPerPage);
   const paginatedBooks = useMemo(
-    () => posts.slice((page - 1) * booksPerPage, page * booksPerPage),
-    [posts, page, booksPerPage]
+    () => filteredPosts.slice((page - 1) * booksPerPage, page * booksPerPage),
+    [filteredPosts, page, booksPerPage]
   );
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setPage(1);
+  };
 
   if (posts.length === 0) return null;
 
@@ -62,10 +80,27 @@ const AllBooksSection = ({ posts, booksPerPage = 12 }: AllBooksSectionProps) => 
   return (
     <section className="py-16">
       <div className="container">
-        <div className="flex items-center gap-2 mb-8">
+        <div className="flex items-center gap-2 mb-6">
           <BookOpen className="h-5 w-5 text-primary" />
           <h2 className="font-heading text-2xl font-bold text-foreground">All Books</h2>
-          <span className="text-sm text-muted-foreground ml-2">({posts.length} total)</span>
+          <span className="text-sm text-muted-foreground ml-2">({filteredPosts.length} total)</span>
+        </div>
+
+        {/* Category filter tabs */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors border ${
+                activeCategory === cat
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-foreground border-border hover:border-primary/40 hover:text-primary"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -73,6 +108,10 @@ const AllBooksSection = ({ posts, booksPerPage = 12 }: AllBooksSectionProps) => 
             <BookCard key={book.id} book={toBookCard(book)} />
           ))}
         </div>
+
+        {paginatedBooks.length === 0 && (
+          <p className="text-center text-muted-foreground py-12">No books in this category yet.</p>
+        )}
 
         {totalPages > 1 && (
           <nav className="flex items-center justify-center gap-1 mt-10" aria-label="Pagination">
