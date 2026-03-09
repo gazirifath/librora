@@ -6,6 +6,7 @@ import BookCard, { BookCardPost } from "@/components/BookCard";
 import AllBooksSection from "@/components/AllBooksSection";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { categoryIcons } from "@/pages/Categories";
 
 import { toast } from "sonner";
 
