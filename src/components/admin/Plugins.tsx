@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Plus, Trash2, RefreshCw, Settings2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Search, Plus, Upload, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Plugin {
@@ -16,6 +19,7 @@ interface Plugin {
   active: boolean;
   isDropIn: boolean;
   autoUpdate: boolean;
+  fileName?: string;
 }
 
 const defaultPlugins: Plugin[] = [
@@ -41,6 +45,15 @@ const Plugins = () => {
   const [filter, setFilter] = useState<FilterType>("all");
   const [bulkAction, setBulkAction] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // Add Plugin dialog
+  const [showAdd, setShowAdd] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newVersion, setNewVersion] = useState("1.0.0");
+  const [newAuthor, setNewAuthor] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const filtered = plugins.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase());
@@ -74,6 +87,12 @@ const Plugins = () => {
     toast.success("Auto-update setting changed");
   };
 
+  const deletePlugin = (id: string) => {
+    const plugin = plugins.find((p) => p.id === id);
+    setPlugins((prev) => prev.filter((p) => p.id !== id));
+    toast.success(`${plugin?.name} deleted`);
+  };
+
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -92,19 +111,74 @@ const Plugins = () => {
 
   const applyBulk = () => {
     if (!bulkAction || selected.size === 0) return;
-    setPlugins((prev) =>
-      prev.map((p) => {
-        if (!selected.has(p.id)) return p;
-        if (bulkAction === "activate") return { ...p, active: true };
-        if (bulkAction === "deactivate") return { ...p, active: false };
-        if (bulkAction === "enable-auto") return { ...p, autoUpdate: true };
-        if (bulkAction === "disable-auto") return { ...p, autoUpdate: false };
-        return p;
-      })
-    );
-    toast.success(`Bulk action applied to ${selected.size} plugins`);
+    if (bulkAction === "delete") {
+      setPlugins((prev) => prev.filter((p) => !selected.has(p.id)));
+      toast.success(`${selected.size} plugins deleted`);
+    } else {
+      setPlugins((prev) =>
+        prev.map((p) => {
+          if (!selected.has(p.id)) return p;
+          if (bulkAction === "activate") return { ...p, active: true };
+          if (bulkAction === "deactivate") return { ...p, active: false };
+          if (bulkAction === "enable-auto") return { ...p, autoUpdate: true };
+          if (bulkAction === "disable-auto") return { ...p, autoUpdate: false };
+          return p;
+        })
+      );
+      toast.success(`Bulk action applied to ${selected.size} plugins`);
+    }
     setSelected(new Set());
     setBulkAction("");
+  };
+
+  const handleAddPlugin = () => {
+    if (!newName.trim()) {
+      toast.error("Plugin name is required");
+      return;
+    }
+    if (!uploadedFile) {
+      toast.error("Please upload a plugin file (.zip or .js)");
+      return;
+    }
+    const newPlugin: Plugin = {
+      id: crypto.randomUUID(),
+      name: newName.trim(),
+      description: newDesc.trim() || "Custom uploaded plugin",
+      version: newVersion.trim() || "1.0.0",
+      author: newAuthor.trim() || "Custom",
+      active: true,
+      isDropIn: false,
+      autoUpdate: false,
+      fileName: uploadedFile.name,
+    };
+    setPlugins((prev) => [newPlugin, ...prev]);
+    toast.success(`${newPlugin.name} installed and activated`);
+    resetAddForm();
+  };
+
+  const resetAddForm = () => {
+    setShowAdd(false);
+    setNewName("");
+    setNewDesc("");
+    setNewVersion("1.0.0");
+    setNewAuthor("");
+    setUploadedFile(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const valid = [".zip", ".js", ".ts", ".json"];
+      const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+      if (!valid.includes(ext)) {
+        toast.error("Only .zip, .js, .ts, or .json files are accepted");
+        return;
+      }
+      setUploadedFile(file);
+      if (!newName) {
+        setNewName(file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()));
+      }
+    }
   };
 
   const filterBtn = (key: FilterType, label: string) => (
@@ -125,7 +199,7 @@ const Plugins = () => {
           <h1 className="text-2xl font-heading font-bold text-foreground">Plugins</h1>
           <p className="text-sm text-muted-foreground">Manage installed plugins and extensions</p>
         </div>
-        <Button size="sm" onClick={() => toast.info("Plugin marketplace coming soon!")}>
+        <Button size="sm" onClick={() => setShowAdd(true)}>
           <Plus className="h-4 w-4 mr-1.5" /> Add Plugin
         </Button>
       </div>
@@ -156,6 +230,7 @@ const Plugins = () => {
             <option value="deactivate">Deactivate</option>
             <option value="enable-auto">Enable Auto-updates</option>
             <option value="disable-auto">Disable Auto-updates</option>
+            <option value="delete">Delete</option>
           </select>
           <Button variant="outline" size="sm" onClick={applyBulk}>Apply</Button>
         </div>
@@ -170,7 +245,6 @@ const Plugins = () => {
         </div>
       </div>
 
-      {/* Items count */}
       <p className="text-xs text-muted-foreground">{filtered.length} items</p>
 
       {/* Table */}
@@ -209,22 +283,20 @@ const Plugins = () => {
                     {plugin.isDropIn && (
                       <Badge variant="secondary" className="ml-2 text-[10px]">Drop-in</Badge>
                     )}
+                    {plugin.fileName && (
+                      <Badge variant="outline" className="ml-2 text-[10px]">Uploaded</Badge>
+                    )}
                     <div className="text-xs text-muted-foreground mt-0.5">
                       v{plugin.version} | By {plugin.author}
+                      {plugin.fileName && <> | File: {plugin.fileName}</>}
                     </div>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <button
-                        onClick={() => toggleActive(plugin.id)}
-                        className="text-xs text-primary hover:underline"
-                      >
+                      <button onClick={() => toggleActive(plugin.id)} className="text-xs text-primary hover:underline">
                         {plugin.active ? "Deactivate" : "Activate"}
                       </button>
                       <span className="text-muted-foreground text-xs">|</span>
-                      <button
-                        onClick={() => toast.info("Plugin settings coming soon!")}
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        Settings
+                      <button onClick={() => deletePlugin(plugin.id)} className="text-xs text-destructive hover:underline">
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -255,6 +327,64 @@ const Plugins = () => {
           </TableBody>
         </Table>
       </div>
+
+      {/* Add Plugin Dialog */}
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Plugin</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {/* File Upload */}
+            <div>
+              <Label>Plugin File *</Label>
+              <input type="file" ref={fileRef} accept=".zip,.js,.ts,.json" onChange={handleFileChange} className="hidden" />
+              {uploadedFile ? (
+                <div className="mt-1.5 flex items-center gap-2 px-3 py-2 border border-border rounded-md bg-muted/30">
+                  <Upload className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-sm truncate flex-1">{uploadedFile.name}</span>
+                  <span className="text-xs text-muted-foreground">{(uploadedFile.size / 1024).toFixed(1)} KB</span>
+                  <button onClick={() => setUploadedFile(null)} className="text-muted-foreground hover:text-foreground">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="mt-1.5 w-full flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed border-border rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors"
+                >
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Click to upload .zip, .js, .ts, or .json</span>
+                </button>
+              )}
+            </div>
+            <div>
+              <Label>Plugin Name *</Label>
+              <Input className="mt-1.5" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="My Custom Plugin" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea className="mt-1.5" rows={2} value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What does this plugin do?" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Version</Label>
+                <Input className="mt-1.5" value={newVersion} onChange={(e) => setNewVersion(e.target.value)} placeholder="1.0.0" />
+              </div>
+              <div>
+                <Label>Author</Label>
+                <Input className="mt-1.5" value={newAuthor} onChange={(e) => setNewAuthor(e.target.value)} placeholder="Author name" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={resetAddForm}>Cancel</Button>
+            <Button onClick={handleAddPlugin}>
+              <Upload className="h-4 w-4 mr-1.5" /> Install Plugin
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
