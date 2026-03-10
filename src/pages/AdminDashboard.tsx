@@ -30,6 +30,7 @@ import AdminDailyReports from "@/components/admin/DailyReports";
 import AdminAutomation from "@/components/admin/AutomationSettings";
 import AdminAnalytics from "@/components/admin/Analytics";
 import AdminNewsletter from "@/components/admin/NewsletterSubscribers";
+import AdminPlugins from "@/components/admin/Plugins";
 
 const AdminDashboard = () => {
   const { user, loading } = useAuth();
@@ -58,6 +59,7 @@ const AdminDashboard = () => {
             <Route path="automation" element={<AdminAutomation />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="newsletter" element={<AdminNewsletter />} />
+            <Route path="plugins" element={<AdminPlugins />} />
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostNew />} />
             <Route path="posts/edit/:id" element={<AdminPostNew />} />
