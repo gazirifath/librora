@@ -31,6 +31,7 @@ import AdminAutomation from "@/components/admin/AutomationSettings";
 import AdminAnalytics from "@/components/admin/Analytics";
 import AdminNewsletter from "@/components/admin/NewsletterSubscribers";
 import AdminPlugins from "@/components/admin/Plugins";
+import AdminSnippets from "@/components/admin/Snippets";
 
 const AdminDashboard = () => {
   const { user, loading } = useAuth();
@@ -60,6 +61,7 @@ const AdminDashboard = () => {
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="newsletter" element={<AdminNewsletter />} />
             <Route path="plugins" element={<AdminPlugins />} />
+            <Route path="snippets" element={<AdminSnippets />} />
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostNew />} />
             <Route path="posts/edit/:id" element={<AdminPostNew />} />
