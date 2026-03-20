@@ -23,7 +23,7 @@ const menuItems: MenuItem[] = [
   { label: "Analytics", icon: BarChart3, path: "/admin/analytics" },
   { label: "Automation", icon: Webhook, path: "/admin/automation" },
   { label: "Newsletter", icon: Mail, path: "/admin/newsletter" },
-  { label: "Plugins", icon: Plug, path: "/admin/plugins" },
+  
   { label: "Snippets", icon: Code, path: "/admin/snippets" },
   {
     label: "Books", icon: FileText, children: [
