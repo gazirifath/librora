@@ -4,12 +4,46 @@ const COOKIE_PREFIX = "librora_";
 const storageKey = (name: string) => `${COOKIE_PREFIX}${name}`;
 
 const safeLocalStorageGet = (key: string): string | null => {
-  try { return window.localStorage.getItem(key); } catch { return null; }
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 };
 
 const safeLocalStorageSet = (key: string, value: string) => {
-  try { window.localStorage.setItem(key, value); } catch {}
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {}
 };
+
+const safeLocalStorageRemove = (key: string) => {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {}
+};
+
+const safeSessionStorageGet = (key: string): string | null => {
+  try {
+    return window.sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeSessionStorageSet = (key: string, value: string) => {
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch {}
+};
+
+const safeSessionStorageRemove = (key: string) => {
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch {}
+};
+
+let consentMemory: "1" | null = null;
 
 export const setCookie = (name: string, value: string, days = 365) => {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
@@ -36,7 +70,10 @@ export const removeCookie = (name: string) => {
 // Track returning visitors
 export const isReturningVisitor = (): boolean => {
   const visited = getCookie("visited");
-  if (!visited) { setCookie("visited", "1"); return false; }
+  if (!visited) {
+    setCookie("visited", "1");
+    return false;
+  }
   return true;
 };
 
@@ -44,17 +81,36 @@ export const isReturningVisitor = (): boolean => {
 export const setLastCategory = (slug: string) => setCookie("last_cat", slug, 30);
 export const getLastCategory = (): string | null => getCookie("last_cat");
 
-// Cookie consent (mirrored to localStorage for embedded previews)
-export const hasConsentedCookies = (): boolean =>
-  safeLocalStorageGet(storageKey("consent")) === "1" || getCookie("consent") === "1";
+// Cookie consent (mirrored across storages for reliability)
+export const hasConsentedCookies = (): boolean => {
+  if (consentMemory === "1") return true;
+
+  const key = storageKey("consent");
+  const consented =
+    safeLocalStorageGet(key) === "1" ||
+    safeSessionStorageGet(key) === "1" ||
+    getCookie("consent") === "1";
+
+  if (consented) {
+    consentMemory = "1";
+  }
+
+  return consented;
+};
 
 export const setConsentCookies = () => {
-  safeLocalStorageSet(storageKey("consent"), "1");
+  const key = storageKey("consent");
+  consentMemory = "1";
+  safeLocalStorageSet(key, "1");
+  safeSessionStorageSet(key, "1");
   setCookie("consent", "1", 365);
 };
 
 export const revokeConsentCookies = () => {
-  try { window.localStorage.removeItem(storageKey("consent")); } catch {}
+  const key = storageKey("consent");
+  consentMemory = null;
+  safeLocalStorageRemove(key);
+  safeSessionStorageRemove(key);
   removeCookie("consent");
 };
 
@@ -66,7 +122,11 @@ export const setDismissedNewsletter = () => setCookie("nl_dismiss", "1", 30);
 export const getSearchHistory = (): string[] => {
   const raw = getCookie("search_hist");
   if (!raw) return [];
-  try { return JSON.parse(raw); } catch { return []; }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
 };
 
 export const addSearchHistory = (query: string) => {
