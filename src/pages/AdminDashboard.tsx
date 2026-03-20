@@ -30,7 +30,7 @@ import AdminDailyReports from "@/components/admin/DailyReports";
 import AdminAutomation from "@/components/admin/AutomationSettings";
 import AdminAnalytics from "@/components/admin/Analytics";
 import AdminNewsletter from "@/components/admin/NewsletterSubscribers";
-import AdminPlugins from "@/components/admin/Plugins";
+
 import AdminSnippets from "@/components/admin/Snippets";
 
 const AdminDashboard = () => {
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
             <Route path="automation" element={<AdminAutomation />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="newsletter" element={<AdminNewsletter />} />
-            <Route path="plugins" element={<AdminPlugins />} />
+            
             <Route path="snippets" element={<AdminSnippets />} />
             <Route path="posts" element={<AdminPosts />} />
             <Route path="posts/new" element={<AdminPostNew />} />
