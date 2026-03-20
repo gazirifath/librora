@@ -30,7 +30,7 @@ import AdminDailyReports from "@/components/admin/DailyReports";
 import AdminAutomation from "@/components/admin/AutomationSettings";
 import AdminAnalytics from "@/components/admin/Analytics";
 import AdminNewsletter from "@/components/admin/NewsletterSubscribers";
-import AdminPlugins from "@/components/admin/Plugins";
+
 import AdminSnippets from "@/components/admin/Snippets";
 
 const AdminDashboard = () => {
