@@ -191,7 +191,7 @@ const useSnippetInjector = () => {
           code: check.sanitizedCode,
           placement,
           active: true,
-        });
+        }, nonce);
       });
     };
 
