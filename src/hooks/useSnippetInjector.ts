@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { hasConsentedCookies } from "@/lib/cookies";
 
 type Placement = "head" | "body_start" | "body_end";
 
@@ -67,9 +68,27 @@ const removeAllInjected = () => {
 const useSnippetInjector = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const [consented, setConsented] = useState<boolean>(() =>
+    typeof window !== "undefined" ? hasConsentedCookies() : false
+  );
+
+  // Listen for consent changes (accept/revoke dispatched via custom event + storage).
+  useEffect(() => {
+    const refresh = () => setConsented(hasConsentedCookies());
+    window.addEventListener("open-cookie-preferences", refresh);
+    window.addEventListener("cookie-consent-changed", refresh);
+    window.addEventListener("storage", refresh);
+    const interval = window.setInterval(refresh, 1500);
+    return () => {
+      window.removeEventListener("open-cookie-preferences", refresh);
+      window.removeEventListener("cookie-consent-changed", refresh);
+      window.removeEventListener("storage", refresh);
+      window.clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
-    if (isAdmin) {
+    if (isAdmin || !consented) {
       removeAllInjected();
       return;
     }
@@ -112,7 +131,7 @@ const useSnippetInjector = () => {
     return () => {
       cancelled = true;
     };
-  }, [isAdmin]);
+  }, [isAdmin, consented]);
 };
 
 export default useSnippetInjector;

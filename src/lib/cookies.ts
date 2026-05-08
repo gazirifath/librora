@@ -104,6 +104,7 @@ export const setConsentCookies = () => {
   safeLocalStorageSet(key, "1");
   safeSessionStorageSet(key, "1");
   setCookie("consent", "1", 365);
+  try { window.dispatchEvent(new Event("cookie-consent-changed")); } catch {}
 };
 
 export const revokeConsentCookies = () => {
@@ -112,6 +113,7 @@ export const revokeConsentCookies = () => {
   safeLocalStorageRemove(key);
   safeSessionStorageRemove(key);
   removeCookie("consent");
+  try { window.dispatchEvent(new Event("cookie-consent-changed")); } catch {}
 };
 
 // Dismiss newsletter banner
