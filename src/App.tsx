@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import usePageViewTracker from "@/hooks/usePageViewTracker";
+import useSnippetInjector from "@/hooks/useSnippetInjector";
 import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
 import { lazy, Suspense } from "react";
@@ -42,6 +43,11 @@ const PageViewTracker = () => {
   return null;
 };
 
+const SnippetInjector = () => {
+  useSnippetInjector();
+  return null;
+};
+
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
     <div className="flex flex-col items-center gap-3">
@@ -60,6 +66,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <PageViewTracker />
+          <SnippetInjector />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
