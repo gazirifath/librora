@@ -117,11 +117,22 @@ const useSnippetInjector = () => {
 
       parsed.forEach((raw: any) => {
         if (!raw || raw.active === false || !raw.code) return;
+        const placement = normalizePlacement(raw.placement);
+        const check = validateSnippet({
+          name: raw.name ?? "Snippet",
+          code: String(raw.code),
+          placement,
+        });
+        if (!check.valid) {
+          // eslint-disable-next-line no-console
+          console.warn("[snippets] skipped invalid snippet:", raw.name, check.errors);
+          return;
+        }
         injectSnippet({
           id: typeof raw.id === "string" ? raw.id : crypto.randomUUID(),
           name: raw.name ?? "Snippet",
-          code: String(raw.code),
-          placement: normalizePlacement(raw.placement),
+          code: check.sanitizedCode,
+          placement,
           active: true,
         });
       });
