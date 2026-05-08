@@ -13,6 +13,7 @@ import { Plus, Search, Code, Trash2, Pencil, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { validateSnippet, validateSnippetList, SNIPPET_LIMITS } from "@/lib/snippetValidation";
 
 type SnippetPlacement = "head" | "body_start" | "body_end";
 
