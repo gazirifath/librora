@@ -395,7 +395,7 @@ const Snippets = () => {
                 placeholder="<script>...</script>"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Paste your custom script, tracking code, or meta tags here.
+                Paste your custom script, tracking code, or meta tags here. Max {SNIPPET_LIMITS.code.toLocaleString()} chars. <code>&lt;object&gt;</code>, <code>&lt;embed&gt;</code>, <code>&lt;form&gt;</code>, and <code>javascript:</code> URLs are blocked; inline event handlers outside <code>&lt;script&gt;</code> are stripped.
               </p>
             </div>
           </div>
