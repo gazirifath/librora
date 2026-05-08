@@ -170,6 +170,7 @@ const useSnippetInjector = () => {
       if (!Array.isArray(parsed)) return;
 
       removeAllInjected();
+      const nonce = getCspNonce();
 
       parsed.forEach((raw: any) => {
         if (!raw || raw.active === false || !raw.code) return;
