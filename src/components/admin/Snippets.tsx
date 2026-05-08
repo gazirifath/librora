@@ -141,11 +141,20 @@ const Snippets = () => {
   };
 
   const handleSave = () => {
-    if (!name.trim() || !code.trim()) {
-      toast.error("Name and code are required");
+    const result = validateSnippet({
+      name: name.trim(),
+      code,
+      placement,
+      description: description.trim(),
+    });
+
+    if (!result.valid) {
+      toast.error(result.errors[0]);
       return;
     }
+    result.warnings.forEach((w) => toast.warning(w));
 
+    const cleanCode = result.sanitizedCode;
     let updated: Snippet[];
 
     if (editId) {
@@ -154,7 +163,7 @@ const Snippets = () => {
           ? {
               ...snippet,
               name: name.trim(),
-              code: code.trim(),
+              code: cleanCode,
               placement,
               description: description.trim(),
             }
@@ -166,7 +175,7 @@ const Snippets = () => {
           id: crypto.randomUUID(),
           name: name.trim(),
           type: "custom",
-          code: code.trim(),
+          code: cleanCode,
           placement,
           active: true,
           description: description.trim(),
@@ -174,6 +183,12 @@ const Snippets = () => {
         },
         ...snippets,
       ];
+    }
+
+    const listCheck = validateSnippetList(updated);
+    if (!listCheck.valid) {
+      toast.error(listCheck.error ?? "Snippet list is invalid.");
+      return;
     }
 
     saveSnippets.mutate(updated);
