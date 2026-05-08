@@ -13,6 +13,7 @@ import { Plus, Search, Code, Trash2, Pencil, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { validateSnippet, validateSnippetList, SNIPPET_LIMITS } from "@/lib/snippetValidation";
 
 type SnippetPlacement = "head" | "body_start" | "body_end";
 
@@ -140,11 +141,20 @@ const Snippets = () => {
   };
 
   const handleSave = () => {
-    if (!name.trim() || !code.trim()) {
-      toast.error("Name and code are required");
+    const result = validateSnippet({
+      name: name.trim(),
+      code,
+      placement,
+      description: description.trim(),
+    });
+
+    if (!result.valid) {
+      toast.error(result.errors[0]);
       return;
     }
+    result.warnings.forEach((w) => toast.warning(w));
 
+    const cleanCode = result.sanitizedCode;
     let updated: Snippet[];
 
     if (editId) {
@@ -153,7 +163,7 @@ const Snippets = () => {
           ? {
               ...snippet,
               name: name.trim(),
-              code: code.trim(),
+              code: cleanCode,
               placement,
               description: description.trim(),
             }
@@ -165,7 +175,7 @@ const Snippets = () => {
           id: crypto.randomUUID(),
           name: name.trim(),
           type: "custom",
-          code: code.trim(),
+          code: cleanCode,
           placement,
           active: true,
           description: description.trim(),
@@ -173,6 +183,12 @@ const Snippets = () => {
         },
         ...snippets,
       ];
+    }
+
+    const listCheck = validateSnippetList(updated);
+    if (!listCheck.valid) {
+      toast.error(listCheck.error ?? "Snippet list is invalid.");
+      return;
     }
 
     saveSnippets.mutate(updated);
@@ -379,7 +395,7 @@ const Snippets = () => {
                 placeholder="<script>...</script>"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Paste your custom script, tracking code, or meta tags here.
+                Paste your custom script, tracking code, or meta tags here. Max {SNIPPET_LIMITS.code.toLocaleString()} chars. <code>&lt;object&gt;</code>, <code>&lt;embed&gt;</code>, <code>&lt;form&gt;</code>, and <code>javascript:</code> URLs are blocked; inline event handlers outside <code>&lt;script&gt;</code> are stripped.
               </p>
             </div>
           </div>
