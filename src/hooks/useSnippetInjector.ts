@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { hasConsentedCookies } from "@/lib/cookies";
+import { validateSnippet } from "@/lib/snippetValidation";
 
 type Placement = "head" | "body_start" | "body_end";
 
