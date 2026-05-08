@@ -16,6 +16,51 @@ type Snippet = {
 
 const SNIPPETS_KEY = "code_snippets";
 const ATTR = "data-snippet-id";
+const NONCE_META = "csp-nonce";
+
+/**
+ * Resolve a CSP nonce for this page.
+ * Priority:
+ *   1. <meta name="csp-nonce" content="..."> rendered by the server
+ *   2. nonce attribute on the bootstrap script tag
+ *   3. freshly generated random nonce (registered as a meta tag so the rest
+ *      of the app can read it via `getCspNonce()`)
+ */
+export const getCspNonce = (): string => {
+  if (typeof document === "undefined") return "";
+
+  const meta = document.querySelector<HTMLMetaElement>(`meta[name="${NONCE_META}"]`);
+  if (meta?.content) return meta.content;
+
+  const bootScript = document.querySelector<HTMLScriptElement>("script[nonce]");
+  const fromScript = bootScript?.nonce || bootScript?.getAttribute("nonce") || "";
+  if (fromScript) {
+    upsertNonceMeta(fromScript);
+    return fromScript;
+  }
+
+  const generated = generateNonce();
+  upsertNonceMeta(generated);
+  return generated;
+};
+
+const generateNonce = (): string => {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  let bin = "";
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return btoa(bin).replace(/=+$/, "");
+};
+
+const upsertNonceMeta = (nonce: string) => {
+  let meta = document.querySelector<HTMLMetaElement>(`meta[name="${NONCE_META}"]`);
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = NONCE_META;
+    document.head.appendChild(meta);
+  }
+  meta.content = nonce;
+};
 
 const normalizePlacement = (value: unknown): Placement =>
   value === "body_start" || value === "body_end" ? value : "head";
@@ -23,9 +68,10 @@ const normalizePlacement = (value: unknown): Placement =>
 /**
  * Parse snippet HTML/JS and inject DOM nodes into the target.
  * Re-creates <script> tags so the browser actually executes them
- * (innerHTML <script> tags do NOT execute).
+ * (innerHTML <script> tags do NOT execute) and stamps each script/style
+ * with the page CSP nonce so a strict-dynamic CSP can allow them.
  */
-const injectSnippet = (snippet: Snippet) => {
+const injectSnippet = (snippet: Snippet, nonce: string) => {
   const target =
     snippet.placement === "head"
       ? document.head
@@ -42,14 +88,24 @@ const injectSnippet = (snippet: Snippet) => {
       const original = node as HTMLScriptElement;
       const script = document.createElement("script");
       for (const { name, value } of Array.from(original.attributes)) {
+        if (name.toLowerCase() === "nonce") continue;
         script.setAttribute(name, value);
       }
       script.text = original.textContent ?? "";
       script.setAttribute(ATTR, snippet.id);
+      if (nonce) {
+        script.setAttribute("nonce", nonce);
+        // Some browsers expose `nonce` only via the IDL property.
+        try { (script as any).nonce = nonce; } catch {}
+      }
       nodes.push(script);
     } else {
       if (node.nodeType === Node.ELEMENT_NODE) {
-        (node as Element).setAttribute(ATTR, snippet.id);
+        const el = node as Element;
+        el.setAttribute(ATTR, snippet.id);
+        if (nonce && (el.tagName === "STYLE" || el.tagName === "LINK")) {
+          el.setAttribute("nonce", nonce);
+        }
       }
       nodes.push(node);
     }
@@ -114,6 +170,7 @@ const useSnippetInjector = () => {
       if (!Array.isArray(parsed)) return;
 
       removeAllInjected();
+      const nonce = getCspNonce();
 
       parsed.forEach((raw: any) => {
         if (!raw || raw.active === false || !raw.code) return;
@@ -134,7 +191,7 @@ const useSnippetInjector = () => {
           code: check.sanitizedCode,
           placement,
           active: true,
-        });
+        }, nonce);
       });
     };
 
