@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,11 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Code, Trash2, Pencil, Copy, Check } from "lucide-react";
+import { Plus, Search, Code, Trash2, Pencil, Copy, Check, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { validateSnippet, validateSnippetList, SNIPPET_LIMITS } from "@/lib/snippetValidation";
+import { hasConsentedCookies, setConsentCookies, revokeConsentCookies } from "@/lib/cookies";
 
 type SnippetPlacement = "head" | "body_start" | "body_end";
 
@@ -105,11 +106,22 @@ const Snippets = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [consented, setConsented] = useState(() => hasConsentedCookies());
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [placement, setPlacement] = useState<SnippetPlacement>("head");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    const refresh = () => setConsented(hasConsentedCookies());
+    window.addEventListener("cookie-consent-changed", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("cookie-consent-changed", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
 
   const filtered = snippets.filter((snippet) => {
     const q = search.toLowerCase();
@@ -247,6 +259,47 @@ const Snippets = () => {
           />
         </div>
       </div>
+
+      <Card className={consented ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}>
+        <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4">
+          <div className="flex items-start gap-3">
+            {consented ? (
+              <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+            ) : (
+              <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            )}
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {consented
+                  ? "Cookie consent accepted"
+                  : "Cookie consent not accepted"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {consented
+                  ? "Active snippets are currently being injected into public pages."
+                  : "Active snippets will not be injected for visitors until cookie consent is accepted."}
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant={consented ? "destructive" : "default"}
+            onClick={() => {
+              if (consented) {
+                revokeConsentCookies();
+                setConsented(false);
+                toast.success("Cookie consent revoked");
+              } else {
+                setConsentCookies();
+                setConsented(true);
+                toast.success("Cookie consent accepted");
+              }
+            }}
+          >
+            {consented ? "Revoke Consent" : "Accept Consent"}
+          </Button>
+        </CardContent>
+      </Card>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
