@@ -28,7 +28,7 @@ const BookCard = ({ book }: BookCardProps) => {
         {book.cover_url ? (
           <img
             src={book.cover_url}
-            alt={book.title}
+            alt={`Cover of ${book.title}${book.author ? ` by ${book.author}` : ""}`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             decoding="async"

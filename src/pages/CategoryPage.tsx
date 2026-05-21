@@ -100,7 +100,7 @@ const CategoryPage = () => {
                   className="rounded-xl border border-border bg-card p-6 hover:shadow-book transition-all duration-300 group"
                 >
                   {post.cover_url && (
-                    <img src={post.cover_url} alt={post.title} className="w-full h-40 object-cover rounded-md mb-4" loading="lazy" />
+                    <img src={post.cover_url} alt={`Cover of ${post.title}`} className="w-full h-40 object-cover rounded-md mb-4" loading="lazy" />
                   )}
                   <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                     {post.title}

@@ -1,0 +1,18 @@
+# Librora
+
+> Curated library of bestselling PDF books with email-gated downloads and trusted purchase links across business, self-help, fiction and more.
+
+## Pages
+
+- [Home](/): Discover featured PDF books and browse the latest releases.
+- [Categories](/categories): Browse all book categories.
+- [Subscribe](/subscribe): Weekly PDF Books newsletter.
+- [About](/about): About Librora.
+
+## Optional
+
+- [Privacy Policy](/privacy)
+- [Terms](/terms)
+- [Cookie Policy](/cookie-policy)
+- [Affiliate Disclosure](/affiliate-disclosure)
+- [DMCA](/dmca)

@@ -75,6 +75,7 @@ const EmailPopup = ({ bookSlug, bookTitle, bookCategory, postId, downloadUrl, is
       <div className="relative w-full max-w-md mx-4 rounded-xl border border-border bg-background p-8 shadow-book animate-scale-in">
         <button
           onClick={onClose}
+          aria-label="Close"
           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
         >
           <X className="h-5 w-5" />

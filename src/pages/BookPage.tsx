@@ -59,6 +59,40 @@ const BookPage = () => {
     fetchBook();
   }, [slug]);
 
+  useEffect(() => {
+    if (!book) return;
+    const prevTitle = document.title;
+    document.title = `${book.title} — PDF Download | Librora`;
+    const desc = ((book.summary || "").replace(/<[^>]+>/g, "").trim().substring(0, 157)) || `Download the ${book.title} PDF by ${book.author} on Librora.`;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    const prevDesc = metaDesc?.getAttribute("content") ?? null;
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute("content", desc);
+
+    const setProp = (prop: string, value: string) => {
+      let el = document.querySelector(`meta[property="${prop}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", prop);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", value);
+    };
+    setProp("og:title", `${book.title} — PDF Download | Librora`);
+    setProp("og:description", desc);
+    setProp("og:url", `https://librora.lovable.app/${book.slug}`);
+    setProp("og:type", "book");
+
+    return () => {
+      document.title = prevTitle;
+      if (prevDesc !== null) metaDesc?.setAttribute("content", prevDesc);
+    };
+  }, [book]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -88,14 +122,27 @@ const BookPage = () => {
   const faqItems = (book.faq as any[]) || [];
   const keyLessons = book.key_lessons || [];
 
+  const pageUrl = `https://librora.lovable.app/${book.slug}`;
+  const metaDescription = ((book.summary || "").replace(/<[^>]+>/g, "").trim().substring(0, 157) || `Download the ${book.title} PDF by ${book.author} on Librora.`);
+
   const schemaMarkup = {
     "@context": "https://schema.org",
     "@type": "Book",
     name: book.title,
     author: { "@type": "Person", name: book.author },
-    description: (book.summary || "").substring(0, 160),
-    url: `https://librora.store/${book.slug}`,
+    description: metaDescription,
+    url: pageUrl,
   };
+
+  const faqSchema = faqItems.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  } : null;
 
   const toBookCard = (p: DbPost): BookCardPost => ({
     id: p.id,
@@ -116,6 +163,12 @@ const BookPage = () => {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <main className="flex-1">
         <div className="container pt-6">
@@ -128,7 +181,7 @@ const BookPage = () => {
           <div className="grid md:grid-cols-[280px_1fr] gap-10">
             <div className="aspect-[3/4] rounded-xl overflow-hidden shadow-book">
               {book.cover_url ? (
-                <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                <img src={book.cover_url} alt={`Cover of ${book.title} by ${book.author}`} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full gradient-hero flex items-center justify-center p-6 text-center">
                   <div>

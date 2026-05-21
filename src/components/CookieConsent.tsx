@@ -45,7 +45,7 @@ const CookieConsent = () => {
           <Cookie className="h-5 w-5 text-accent flex-shrink-0" />
           <p className="text-xs text-muted-foreground flex-1">
             We use cookies to enhance your browsing experience, remember your preferences, and improve site performance.{" "}
-            <a href="/cookie-policy" className="text-primary hover:underline">Learn more</a>
+            <a href="/cookie-policy" className="text-primary hover:underline">Read our cookie policy</a>
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
             {hasConsented ? (
