@@ -88,14 +88,27 @@ const BookPage = () => {
   const faqItems = (book.faq as any[]) || [];
   const keyLessons = book.key_lessons || [];
 
+  const pageUrl = `https://librora.lovable.app/${book.slug}`;
+  const metaDescription = ((book.summary || "").replace(/<[^>]+>/g, "").trim().substring(0, 157) || `Download the ${book.title} PDF by ${book.author} on Librora.`);
+
   const schemaMarkup = {
     "@context": "https://schema.org",
     "@type": "Book",
     name: book.title,
     author: { "@type": "Person", name: book.author },
-    description: (book.summary || "").substring(0, 160),
-    url: `https://librora.store/${book.slug}`,
+    description: metaDescription,
+    url: pageUrl,
   };
+
+  const faqSchema = faqItems.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  } : null;
 
   const toBookCard = (p: DbPost): BookCardPost => ({
     id: p.id,
