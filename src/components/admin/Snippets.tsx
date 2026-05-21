@@ -106,11 +106,22 @@ const Snippets = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [consented, setConsented] = useState(() => hasConsentedCookies());
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [placement, setPlacement] = useState<SnippetPlacement>("head");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    const refresh = () => setConsented(hasConsentedCookies());
+    window.addEventListener("cookie-consent-changed", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("cookie-consent-changed", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
 
   const filtered = snippets.filter((snippet) => {
     const q = search.toLowerCase();
