@@ -260,6 +260,47 @@ const Snippets = () => {
         </div>
       </div>
 
+      <Card className={consented ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}>
+        <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4">
+          <div className="flex items-start gap-3">
+            {consented ? (
+              <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+            ) : (
+              <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            )}
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {consented
+                  ? "Cookie consent accepted"
+                  : "Cookie consent not accepted"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {consented
+                  ? "Active snippets are currently being injected into public pages."
+                  : "Active snippets will not be injected for visitors until cookie consent is accepted."}
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant={consented ? "destructive" : "default"}
+            onClick={() => {
+              if (consented) {
+                revokeConsentCookies();
+                setConsented(false);
+                toast.success("Cookie consent revoked");
+              } else {
+                setConsentCookies();
+                setConsented(true);
+                toast.success("Cookie consent accepted");
+              }
+            }}
+          >
+            {consented ? "Revoke Consent" : "Accept Consent"}
+          </Button>
+        </CardContent>
+      </Card>
+
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="h-6 w-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
