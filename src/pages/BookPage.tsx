@@ -128,7 +128,7 @@ const BookPage = () => {
           <div className="grid md:grid-cols-[280px_1fr] gap-10">
             <div className="aspect-[3/4] rounded-xl overflow-hidden shadow-book">
               {book.cover_url ? (
-                <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                <img src={book.cover_url} alt={`Cover of ${book.title} by ${book.author}`} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full gradient-hero flex items-center justify-center p-6 text-center">
                   <div>
