@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,11 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Code, Trash2, Pencil, Copy, Check } from "lucide-react";
+import { Plus, Search, Code, Trash2, Pencil, Copy, Check, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { validateSnippet, validateSnippetList, SNIPPET_LIMITS } from "@/lib/snippetValidation";
+import { hasConsentedCookies, setConsentCookies, revokeConsentCookies } from "@/lib/cookies";
 
 type SnippetPlacement = "head" | "body_start" | "body_end";
 
