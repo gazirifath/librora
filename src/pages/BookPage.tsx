@@ -59,6 +59,40 @@ const BookPage = () => {
     fetchBook();
   }, [slug]);
 
+  useEffect(() => {
+    if (!book) return;
+    const prevTitle = document.title;
+    document.title = `${book.title} — PDF Download | Librora`;
+    const desc = ((book.summary || "").replace(/<[^>]+>/g, "").trim().substring(0, 157)) || `Download the ${book.title} PDF by ${book.author} on Librora.`;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    const prevDesc = metaDesc?.getAttribute("content") ?? null;
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute("content", desc);
+
+    const setProp = (prop: string, value: string) => {
+      let el = document.querySelector(`meta[property="${prop}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", prop);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", value);
+    };
+    setProp("og:title", `${book.title} — PDF Download | Librora`);
+    setProp("og:description", desc);
+    setProp("og:url", `https://librora.lovable.app/${book.slug}`);
+    setProp("og:type", "book");
+
+    return () => {
+      document.title = prevTitle;
+      if (prevDesc !== null) metaDesc?.setAttribute("content", prevDesc);
+    };
+  }, [book]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
