@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Leaf, LogIn, Eye, EyeOff } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Leaf, LogIn, Eye, EyeOff, ArrowLeft, Mail } from "lucide-react";
 
 const AdminLogin = () => {
   const { signIn } = useAuth();
+  const [mode, setMode] = useState<"login" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +22,26 @@ const AdminLogin = () => {
       setError("Invalid email or password");
     }
     setLoading(false);
+  };
+
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin/users/profile`,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message || "Failed to send reset email");
+      return;
+    }
+    toast.success("Password reset link sent! Check your email.");
+    setMode("login");
   };
 
   return (
